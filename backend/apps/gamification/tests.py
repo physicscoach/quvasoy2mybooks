@@ -69,3 +69,61 @@ class EventToPointsTests(TestCase):
         process_events()
         self.assertEqual(PointTransaction.objects.filter(user=self.user, reason_code="book_started").count(), 1)
         self.assertEqual(ReaderStats.objects.get(user=self.user).points_balance, 5)
+
+
+class BadgeStreakLevelTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username="u3", password="x", role="reader")
+        cls.book = Book.objects.create(title="K3", page_count=10, status=Book.Status.PUBLISHED)
+
+    def test_level_updates_with_xp(self):
+        from apps.gamification.badges import update_level
+        # 300 XP -> "Kitob do'sti" (2-daraja, min_points 300 seed'da)
+        stats = __import__("apps.accounts.models", fromlist=["ReaderStats"]).ReaderStats.objects.create(
+            user=self.user, points_lifetime=350, points_balance=350
+        )
+        update_level(self.user)
+        stats.refresh_from_db()
+        self.assertIsNotNone(stats.level_id)
+        self.assertGreaterEqual(stats.points_lifetime, stats.level.min_points)
+
+    def test_first_book_badge_on_completion(self):
+        """Kitob tugatilsa first_book nishoni beriladi."""
+        from apps.gamification.badges import check_and_award_badges
+        from apps.gamification.models import UserBadge
+        from apps.reading.models import ReadingProgress
+
+        ReadingProgress.objects.create(
+            user=self.user, book=self.book, status="completed", max_page_reached=10
+        )
+        awarded = check_and_award_badges(self.user)
+        self.assertIn("first_book", awarded)
+        self.assertTrue(UserBadge.objects.filter(user=self.user, badge__code="first_book").exists())
+
+    def test_badge_idempotent(self):
+        from apps.gamification.badges import check_and_award_badges
+        from apps.gamification.models import UserBadge
+        from apps.reading.models import ReadingProgress
+
+        ReadingProgress.objects.create(user=self.user, book=self.book, status="completed", max_page_reached=10)
+        check_and_award_badges(self.user)
+        check_and_award_badges(self.user)  # ikkinchi marta
+        self.assertEqual(UserBadge.objects.filter(user=self.user, badge__code="first_book").count(), 1)
+
+    def test_streak_consecutive_days(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from apps.gamification.badges import update_streak
+        from apps.reading.models import DailyActivity
+
+        today = timezone.localdate()
+        for delta in (0, 1, 2):
+            DailyActivity.objects.create(
+                user=self.user, activity_date=today - timedelta(days=delta),
+                active_seconds=25 * 60, counts_for_streak=True,
+            )
+        streak = update_streak(self.user)
+        self.assertEqual(streak, 3)

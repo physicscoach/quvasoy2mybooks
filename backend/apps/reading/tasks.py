@@ -125,6 +125,10 @@ def _update_progress_and_daily(session: ReadingSession, credited_seconds: int, n
     daily.counts_for_streak = daily.active_seconds >= 20 * 60
     daily.save()
 
+    # Streak DailyActivity'dan qayta hisoblanadi
+    from apps.gamification.badges import update_streak
+    update_streak(user)
+
     # --- Gamifikatsiya hodisalari: faqat emit() - ball bu yerda hisoblanmaydi ---
     if total_pages >= 3 and not _already_started(user, book):
         emit(user, "book_started", source="reading", book_id=book.id, idempotency_key=f"book:{book.id}:start:{user.id}")

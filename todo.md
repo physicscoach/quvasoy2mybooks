@@ -293,13 +293,13 @@ farq yoziladi.
 ### M12 — Nishon, streak, daraja · ~12 soat
 Bog'liq: M11 · Agent: `django-drf-backend`
 
-- [ ] `Badge`, `UserBadge` — 8 ta MVP nishoni seed qilingan
-- [ ] Streak hisoblash `DailyActivity` dan (kunlik job)
-- [ ] `streak_3/7/30` hodisalarini emit qilish
-- [ ] Daraja o'tish + imtiyozlar (yuklash limiti darajaga bog'lanadi)
-- [ ] **XP va tanga ajratilgan** (`points_lifetime` vs `points_balance`)
-- [ ] Reyting jadvali API — `ReaderStats` indeksidan, snapshot'siz
-- [ ] `DailyActivity` foydalanuvchi vaqt zonasida hisoblansin
+- [x] `Badge`, `UserBadge` — 8 ta MVP nishoni seed qilingan
+- [x] Streak hisoblash `DailyActivity` dan (kunlik job)
+- [x] `streak_3/7/30` hodisalarini emit qilish
+- [x] Daraja o'tish + imtiyozlar (yuklash limiti darajaga bog'lanadi)
+- [x] **XP va tanga ajratilgan** (`points_lifetime` vs `points_balance`)
+- [x] Reyting jadvali API — `ReaderStats` indeksidan, snapshot'siz
+- [x] `DailyActivity` foydalanuvchi vaqt zonasida hisoblansin
 
 **Tekshiruv:** 3 kun ketma-ket o'qilsa `streak_3` beriladi · bir kun tashlab
 ketilsa streak nolga tushadi · mukofot sotib olinsa daraja tushmaydi.
