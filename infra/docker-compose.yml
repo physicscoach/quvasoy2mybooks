@@ -59,7 +59,7 @@ services:
     restart: always
     environment:
       NODE_ENV: production
-      INTERNAL_API_URL: http://web:8000
+      BACKEND_ORIGIN: http://web:8000
     expose: ["3000"]
     mem_limit: 450m
     logging: *log

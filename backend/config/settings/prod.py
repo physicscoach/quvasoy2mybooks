@@ -1,7 +1,10 @@
+import os
+
 from .base import *  # noqa: F403
 
 DEBUG = False
-SECURE_SSL_REDIRECT = True
+# Local Docker HTTP test uchun SSL_REDIRECT=0 qilinadi; prod'da default (1)
+SECURE_SSL_REDIRECT = os.environ.get("SSL_REDIRECT", "1") == "1"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
