@@ -1,0 +1,71 @@
+# Elektron kutubxona — Caddy konfiguratsiyasi
+# Reja: D ilovasi. Himoyalangan fayl yetkazish: Django ruxsat beradi,
+# baytlarni Caddy uzatadi (X-Accel-Redirect naqshi, intercept orqali).
+
+{
+	order intercept before reverse_proxy
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# --- Himoyalangan kitob fayllari ---
+	# Django tiketni tekshiradi va X-Accel-Redirect qaytaradi.
+	# Caddy faylni /data/books dan o'zi uzatadi (Range qo'llab-quvvatlanadi).
+	handle /files/* {
+		intercept {
+			@accel header X-Accel-Redirect *
+			handle_response @accel {
+				root * /data
+				rewrite {resp.header.X-Accel-Redirect}
+				method GET
+				file_server
+			}
+		}
+		reverse_proxy web:8000 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+
+	# --- Django API va admin ---
+	handle /api/* {
+		reverse_proxy web:8000 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+	handle /{$ADMIN_PATH}/* {
+		reverse_proxy web:8000 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+
+	# --- Statik va ochiq media (muqovalar) ---
+	handle /static/* {
+		root * /srv
+		file_server
+	}
+	handle /media/* {
+		root * /srv
+		file_server
+	}
+
+	# --- Qolgan hammasi: Next.js ---
+	handle {
+		reverse_proxy next:3000 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+}

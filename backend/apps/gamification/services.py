@@ -1,0 +1,102 @@
+"""Gamifikatsiya biznes mantig'i - view/task bu yerga murojaat qiladi."""
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from django.db import IntegrityError, transaction
+from django.utils import timezone
+
+from apps.accounts.models import ReaderStats
+
+from .models import GamificationRule, PointTransaction
+
+
+@dataclass
+class AwardResult:
+    ok: bool
+    transaction: PointTransaction | None = None
+    reason: str = ""
+
+
+def award_points(
+    user,
+    rule_code: str,
+    idempotency_key: str,
+    *,
+    session=None,
+    book=None,
+    badge=None,
+    description: str = "",
+) -> AwardResult:
+    """Ballni ledgerga yozadi.
+
+    - `atomic()` + `select_for_update()` - poyga holatidan himoya.
+    - `daily_cap_points` va `max_per_object` shu yerda tekshiriladi.
+    - `IntegrityError` (masalan idempotency_key takrorlansa) - **muvaffaqiyat**
+      deb qaytariladi: bu degani ball allaqachon berilgan, qayta urinish shart emas.
+    """
+    try:
+        rule = GamificationRule.objects.get(code=rule_code, is_active=True)
+    except GamificationRule.DoesNotExist:
+        return AwardResult(False, reason=f"Qoida topilmadi yoki faol emas: {rule_code}")
+
+    now = timezone.now()
+    if rule.valid_from and now < rule.valid_from:
+        return AwardResult(False, reason="Qoida hali amalga kirmagan.")
+    if rule.valid_to and now > rule.valid_to:
+        return AwardResult(False, reason="Qoidaning amal muddati tugagan.")
+
+    try:
+        with transaction.atomic():
+            stats, _ = ReaderStats.objects.select_for_update().get_or_create(user=user)
+
+            if rule.max_per_object is not None and book is not None:
+                existing_count = PointTransaction.objects.select_for_update().filter(
+                    user=user, rule=rule, book=book,
+                ).count()
+                if existing_count >= rule.max_per_object:
+                    return AwardResult(False, reason="Bu obyekt uchun ball limiti tugagan.")
+
+            if rule.daily_cap_points is not None and rule.points > 0:
+                since = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                awarded_today = PointTransaction.objects.filter(
+                    user=user, rule=rule, created_at__gte=since,
+                ).aggregate(total=_sum_delta())["total"] or 0
+                if awarded_today >= rule.daily_cap_points:
+                    return AwardResult(False, reason="Kunlik ball chegarasi tugagan.")
+
+            delta = rule.points
+            new_balance = stats.points_balance + delta
+            new_lifetime = stats.points_lifetime + delta if delta > 0 else stats.points_lifetime
+            if new_balance < 0:
+                new_balance = 0
+
+            txn = PointTransaction(
+                user=user,
+                rule=rule,
+                delta=delta,
+                balance_after=new_balance,
+                reason_code=rule.code,
+                description=description or rule.name,
+                session=session,
+                book=book,
+                badge=badge,
+                idempotency_key=idempotency_key,
+            )
+            txn._allow_save = True
+            txn.save()
+
+            stats.points_balance = new_balance
+            stats.points_lifetime = new_lifetime
+            stats.save(update_fields=["points_balance", "points_lifetime"])
+
+            return AwardResult(True, transaction=txn)
+    except IntegrityError:
+        # idempotency_key UNIQUE - demak bu ball allaqachon berilgan. Xato emas.
+        return AwardResult(True, reason="Allaqachon berilgan (idempotent).")
+
+
+def _sum_delta():
+    from django.db.models import Sum
+
+    return Sum("delta")

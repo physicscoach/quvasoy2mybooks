@@ -1,0 +1,87 @@
+name: kutubxona
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports: ["80:80", "443:443"]
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+      ADMIN_PATH: ${ADMIN_PATH:-admin}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data/caddy
+      - books:/data/books:ro
+      - static:/srv/static:ro
+      - derived:/srv/media:ro
+    depends_on: [web, next]
+    mem_limit: 128m
+    logging: &log
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  web:
+    build: { context: ../backend }
+    restart: always
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2 --timeout 60
+    env_file: .env
+    volumes:
+      - books:/app/data/books
+      - derived:/app/data/derived
+      - static:/app/staticfiles
+    expose: ["8000"]
+    depends_on:
+      db: { condition: service_healthy }
+    mem_limit: 600m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/api/v1/health/')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *log
+
+  worker:
+    build: { context: ../backend }
+    restart: always
+    command: python manage.py qcluster
+    env_file: .env
+    volumes:
+      - books:/app/data/books
+      - derived:/app/data/derived
+    depends_on:
+      db: { condition: service_healthy }
+    mem_limit: 768m
+    logging: *log
+
+  next:
+    build: { context: ../frontend }
+    restart: always
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_URL: http://web:8000
+    expose: ["3000"]
+    mem_limit: 450m
+    logging: *log
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file: .env
+    command: postgres -c shared_buffers=256MB -c max_connections=40 -c log_min_duration_statement=1000
+    volumes: [pgdata:/var/lib/postgresql/data]
+    # DIQQAT: port ataylab ochilmagan — baza faqat ichki tarmoqda
+    mem_limit: 400m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *log
+
+volumes:
+  pgdata:
+  books:
+  derived:
+  static:
+  caddy_data:

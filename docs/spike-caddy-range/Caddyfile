@@ -1,0 +1,19 @@
+{
+	order intercept before reverse_proxy
+	auto_https off
+	admin off
+}
+:8080 {
+	handle /files/* {
+		intercept {
+			@accel header X-Accel-Redirect *
+			handle_response @accel {
+				root * /data
+				rewrite {resp.header.X-Accel-Redirect}
+				method GET
+				file_server
+			}
+		}
+		reverse_proxy auth:9000
+	}
+}
