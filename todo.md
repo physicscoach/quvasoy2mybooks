@@ -84,16 +84,16 @@ Bog'liq: M0 · Agent: `django-drf-backend`
 ### M2 — Autentifikatsiya (JWT httpOnly cookie) · ~16 soat
 Bog'liq: M1 · Agent: `django-drf-backend`
 
-- [ ] `accounts.authentication.CookieJWTAuthentication` — `at` cookie'dan o'qiydi,
+- [x] `accounts.authentication.CookieJWTAuthentication` — `at` cookie'dan o'qiydi,
       `token_version` ni solishtiradi
-- [ ] `POST /auth/register/` — email tasdiqlash (yoki v1'ga qoldirish qarori)
-- [ ] `POST /auth/login/` — access (15 daq) + refresh (14 kun) cookie o'rnatadi
-- [ ] `POST /auth/refresh/` — **rotatsiya bilan**, eski jti qayta ishlatilsa oila bekor
-- [ ] `POST /auth/logout/` — blacklist + cookie o'chirish
-- [ ] `GET /auth/me/`
-- [ ] `accounts.permissions`: `IsLibrarian`, `IsAdmin`, `IsOwner`
-- [ ] Throttle: login 5/min, register 3/soat
-- [ ] Testlar: login→me→refresh→logout zanjiri, noto'g'ri parol, muddati o'tgan token
+- [x] `POST /auth/register/` — email tasdiqlash (yoki v1'ga qoldirish qarori)
+- [x] `POST /auth/login/` — access (15 daq) + refresh (14 kun) cookie o'rnatadi
+- [x] `POST /auth/refresh/` — **rotatsiya bilan**, eski jti qayta ishlatilsa oila bekor
+- [x] `POST /auth/logout/` — blacklist + cookie o'chirish
+- [x] `GET /auth/me/`
+- [x] `accounts.permissions`: `IsLibrarian`, `IsAdmin`, `IsOwner`
+- [x] Throttle: login 5/min, register 3/soat
+- [x] Testlar: login→me→refresh→logout zanjiri, noto'g'ri parol, muddati o'tgan token
 
 **Tekshiruv:** `curl` bilan to'liq zanjir ishlaydi · cookie'lar `HttpOnly` ·
 `token_version` oshirilsa eski token darhol rad etiladi.
