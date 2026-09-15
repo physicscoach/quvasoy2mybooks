@@ -10,7 +10,7 @@ export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (PROTECTED_PATTERN.test(pathname)) {
-    const hasSession = request.cookies.has("access_token");
+    const hasSession = request.cookies.has("at");
     if (!hasSession) {
       const url = new URL("/login", request.url);
       url.searchParams.set("next", pathname);

@@ -78,11 +78,14 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = authenticate(
-            request,
-            username=serializer.validated_data["username"],
-            password=serializer.validated_data["password"],
-        )
+        login_id = serializer.validated_data["login"]
+        password = serializer.validated_data["password"]
+        # "login" maydoni username yoki email bo'lishi mumkin
+        username = login_id
+        if "@" in login_id:
+            match = User.objects.filter(email__iexact=login_id).first()
+            username = match.username if match else login_id
+        user = authenticate(request, username=username, password=password)
         if user is None or user.deleted_at is not None:
             return Response({"detail": "Login yoki parol xato."}, status=status.HTTP_401_UNAUTHORIZED)
 

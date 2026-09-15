@@ -6,6 +6,8 @@ import type { NextConfig } from "next";
 const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN ?? "http://localhost:8000";
 
 const nextConfig: NextConfig = {
+  // DRF trailing slash talab qiladi; Next default redirectini o'chiramiz
+  skipTrailingSlashRedirect: true,
   async rewrites() {
     return [
       {

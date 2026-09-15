@@ -101,6 +101,8 @@ BOOKS_ROOT = Path(os.environ.get("BOOKS_ROOT", BASE_DIR / "data" / "books"))
 INTERNAL_FILES_PREFIX = os.environ.get("INTERNAL_FILES_PREFIX", "/books")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# SPA integratsiyasi: API slashsiz (DRF trailing_slash=False bilan mos)
+APPEND_SLASH = False
 
 # --- DRF: default YOPIQ (ruxsatni yozishni unutish ochiq endpoint bermaydi) ---
 REST_FRAMEWORK = {

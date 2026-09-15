@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().min(1, "Email kiritilishi shart").email("Email noto'g'ri formatda"),
+  login: z.string().min(1, "Foydalanuvchi nomi yoki email kiriting"),
   password: z.string().min(1, "Parol kiritilishi shart"),
 });
 
@@ -9,8 +9,11 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const registerSchema = z
   .object({
-    first_name: z.string().min(1, "Ismingizni kiriting"),
-    last_name: z.string().min(1, "Familiyangizni kiriting"),
+    username: z
+      .string()
+      .min(3, "Foydalanuvchi nomi kamida 3 belgidan iborat bo'lishi kerak")
+      .regex(/^[a-zA-Z0-9_.-]+$/, "Faqat harf, raqam va _ . - belgilariga ruxsat"),
+    first_name: z.string().optional(),
     email: z.string().min(1, "Email kiritilishi shart").email("Email noto'g'ri formatda"),
     password: z.string().min(8, "Parol kamida 8 belgidan iborat bo'lishi kerak"),
     password_confirm: z.string().min(1, "Parolni tasdiqlang"),

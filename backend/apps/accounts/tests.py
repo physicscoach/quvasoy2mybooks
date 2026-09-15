@@ -44,7 +44,7 @@ class AuthFlowTests(TestCase):
         self._register()
         resp = self.client.post(
             reverse("accounts:login"),
-            {"username": "reader1", "password": "notogri"},
+            {"login": "reader1", "password": "notogri"},
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 401)

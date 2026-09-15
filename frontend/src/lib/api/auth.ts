@@ -1,47 +1,42 @@
 import { apiFetch } from "@/lib/api/client";
 import type { Me } from "@/types/user";
 
+// Backend O'ZI httpOnly cookie (at/rt) o'rnatadi. Frontend faqat backend
+// endpoint'lariga so'rov yuboradi — rewrites orqali bitta origin, cookie
+// browser'da localhost:3000 uchun saqlanadi.
+
 export interface LoginPayload {
-  email: string;
+  login: string; // foydalanuvchi nomi yoki email
   password: string;
 }
 
 export interface RegisterPayload {
+  username: string;
   email: string;
   password: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
 }
 
 export async function login(payload: LoginPayload): Promise<Me> {
-  const res = await fetch("/api/auth/login", {
+  return apiFetch<Me>("/auth/login/", {
     method: "POST",
-    credentials: "include",
-    cache: "no-store",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+    skipAuthRetry: true,
   });
-  const data = await res.json().catch(() => null);
-  if (!res.ok) {
-    throw Object.assign(new Error(data?.detail ?? "Kirishda xatolik yuz berdi"), {
-      status: res.status,
-      errors: data,
-    });
-  }
-  return data as Me;
 }
 
 export async function logout(): Promise<void> {
-  await fetch("/api/auth/logout", { method: "POST", credentials: "include", cache: "no-store" });
+  await apiFetch("/auth/logout/", { method: "POST", skipAuthRetry: true }).catch(() => {});
 }
 
-export async function register(payload: RegisterPayload): Promise<void> {
-  await apiFetch(`/auth/register/`, {
+export async function register(payload: RegisterPayload): Promise<Me> {
+  return apiFetch<Me>("/auth/register/", {
     method: "POST",
     body: JSON.stringify(payload),
+    skipAuthRetry: true,
   });
 }
 
 export async function fetchMe(): Promise<Me> {
-  return apiFetch<Me>(`/me/`);
+  return apiFetch<Me>("/auth/me/");
 }
