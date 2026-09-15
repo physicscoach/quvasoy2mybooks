@@ -9,12 +9,14 @@ from .serializers import BadgeSerializer, LevelSerializer, PointTransactionSeria
 
 class LevelListView(ListAPIView):
     permission_classes = [AllowAny]
+    pagination_class = None
     serializer_class = LevelSerializer
     queryset = Level.objects.all().order_by("sort_order")
 
 
 class BadgeListView(ListAPIView):
     permission_classes = [AllowAny]
+    pagination_class = None
     serializer_class = BadgeSerializer
     queryset = Badge.objects.filter(is_active=True, is_secret=False).order_by("sort_order")
 

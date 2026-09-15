@@ -1,8 +1,10 @@
 export interface User {
-  id: number;
+  public_id?: string;
+  username: string;
   email: string;
   first_name: string;
   last_name: string;
+  role?: string;
   avatar_url?: string | null;
 }
 

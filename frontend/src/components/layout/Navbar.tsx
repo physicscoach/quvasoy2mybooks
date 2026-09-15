@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Menu, X, LogOut, User as UserIcon } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User as UserIcon, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 const navLinks = [
   { href: "/books", label: "Katalog" },
+  { href: "/leaderboard", label: "Reyting" },
 ];
 
 export function Navbar() {
@@ -66,24 +67,38 @@ export function Navbar() {
 
         <div className="hidden items-center gap-2 md:flex">
           {isLoading ? null : isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="gap-2" />}>
-                <Avatar size="sm">
-                  <AvatarFallback>{initials}</AvatarFallback>
-                </Avatar>
-                <span className="max-w-[120px] truncate">{user.first_name || user.email}</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => router.push("/profile")}>
-                  <UserIcon className="mr-1.5 size-4" />
-                  Profil
-                </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-                  <LogOut className="mr-1.5 size-4" />
-                  Chiqish
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              {(user.stats?.streak_days ?? 0) > 0 && (
+                <span
+                  className="flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-600 dark:text-orange-400"
+                  title="Kunlik seriya"
+                >
+                  🔥 {user.stats?.streak_days}
+                </span>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="gap-2" />}>
+                  <Avatar size="sm">
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                  <span className="max-w-[120px] truncate">{user.first_name || user.email}</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                    <UserIcon className="mr-1.5 size-4" />
+                    Profil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/badges")}>
+                    <Trophy className="mr-1.5 size-4" />
+                    Nishonlar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                    <LogOut className="mr-1.5 size-4" />
+                    Chiqish
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <>
               <Button variant="ghost" size="sm" render={<Link href="/login" />}>

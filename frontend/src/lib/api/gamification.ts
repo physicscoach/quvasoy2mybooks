@@ -1,14 +1,28 @@
 import { apiFetch } from "@/lib/api/client";
-import type { Fetcher } from "@/lib/api/books";
-import type { Badge } from "@/types/gamification";
-import type { ReadingHistoryItem } from "@/types/gamification";
+import type {
+  Badge,
+  LeaderboardEntry,
+  Paginated,
+  PointTransaction,
+  UserBadge,
+} from "@/types/gamification";
 
-export async function fetchMyBadges(fetcher: Fetcher = apiFetch): Promise<Badge[]> {
-  return fetcher<Badge[]>(`/badges/?mine=true`);
+type Fetcher = <T = unknown>(path: string, init?: RequestInit) => Promise<T>;
+
+export async function fetchLeaderboard(fetcher: Fetcher = apiFetch): Promise<LeaderboardEntry[]> {
+  return fetcher<LeaderboardEntry[]>("/gamification/leaderboard");
 }
 
-export async function fetchReadingHistory(
-  fetcher: Fetcher = apiFetch
-): Promise<ReadingHistoryItem[]> {
-  return fetcher<ReadingHistoryItem[]>(`/reading/sessions/?mine=true`);
+export async function fetchAllBadges(fetcher: Fetcher = apiFetch): Promise<Badge[]> {
+  return fetcher<Badge[]>("/gamification/badges");
+}
+
+export async function fetchMyBadges(fetcher: Fetcher = apiFetch): Promise<UserBadge[]> {
+  const page = await fetcher<Paginated<UserBadge>>("/gamification/me/badges");
+  return page.results;
+}
+
+export async function fetchMyPoints(fetcher: Fetcher = apiFetch): Promise<PointTransaction[]> {
+  const page = await fetcher<Paginated<PointTransaction>>("/gamification/me/points");
+  return page.results;
 }

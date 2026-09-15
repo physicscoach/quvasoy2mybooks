@@ -325,12 +325,12 @@ tekshirish · oddiy foydalanuvchi hech qachon flag olmasligi.
 ### M14 — Gamifikatsiya UI · ~18 soat
 Bog'liq: M12, M7 · Agent: `react-frontend`
 
-- [ ] Ball toast (`sonner`), daraja progress bar, streak indikatori
-- [ ] `/profile` — ball, daraja, statistika, o'qish tarixi
-- [ ] `/badges` — olingan va olinmagan nishonlar
-- [ ] `/leaderboard` — haftalik/oylik/umumiy, o'z o'rni ajratilgan
-- [ ] Nishon olinganda modal
-- [ ] O'qish heatmap (DailyActivity dan)
+- [x] Ball toast (`sonner`), daraja progress bar, streak indikatori
+- [x] `/profile` — ball, daraja, statistika, o'qish tarixi
+- [x] `/badges` — olingan va olinmagan nishonlar
+- [x] `/leaderboard` — haftalik/oylik/umumiy, o'z o'rni ajratilgan
+- [x] Nishon olinganda modal
+- [x] O'qish heatmap (DailyActivity dan)
 
 **Tekshiruv:** o'qilgach ball ko'rinadi · reytingda o'z o'rni to'g'ri ·
 mobil'da buzilmaydi.
