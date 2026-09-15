@@ -403,10 +403,10 @@ Bog'liq: M5
 ### M20 — Bulk import + ISBN autofill · ~12 soat
 Bog'liq: M4
 
-- [ ] ZIP yuklash → har fayl uchun `DRAFT` kitob
-- [ ] Ichki metadata bilan avtomatik to'ldirish
-- [ ] Ommaviy `Publish` action
-- [ ] ISBN → Open Library / Google Books API autofill tugmasi
+- [x] ZIP yuklash → har fayl uchun `DRAFT` kitob
+- [x] Ichki metadata bilan avtomatik to'ldirish
+- [x] Ommaviy `Publish` action
+- [x] ISBN → Open Library / Google Books API autofill tugmasi
 
 **Tekshiruv:** 50 kitoblik ZIP yuklanadi, kutubxonachi faqat tekshirib chiqadi.
 
