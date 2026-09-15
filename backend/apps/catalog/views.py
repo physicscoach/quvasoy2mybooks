@@ -1,10 +1,12 @@
 """Public katalog API - faqat AllowAny, faqat status=published korinadi."""
 from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
-from .models import Author, Book, BookAuthor, BookCategory, Category
+from .models import Author, Book, BookAuthor, BookCategory, Category, Review
 from .serializers import AuthorSerializer, BookDetailSerializer, BookListSerializer, CategorySerializer
 
 
@@ -54,3 +56,56 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     serializer_class = CategorySerializer
     queryset = Category.objects.filter(is_active=True).order_by("sort_order", "name")
+
+
+class BookReviewsView(APIView):
+    """GET: kitobning tasdiqlangan sharhlari. POST: sharh yozish (faqat tugatgan)."""
+
+    def get_permissions(self):
+        from rest_framework.permissions import AllowAny, IsAuthenticated
+
+        return [AllowAny()] if self.request.method == "GET" else [IsAuthenticated()]
+
+    def get(self, request, slug):
+        from rest_framework.response import Response
+
+        from .serializers import ReviewSerializer
+
+        book = get_object_or_404(Book, slug=slug, status=Book.Status.PUBLISHED)
+        reviews = book.reviews.filter(moderation_status=Review.ModerationStatus.APPROVED).select_related("user")
+        return Response(ReviewSerializer(reviews, many=True).data)
+
+    def post(self, request, slug):
+        from rest_framework import status
+        from rest_framework.response import Response
+
+        from apps.reading.models import ReadingProgress
+
+        from .serializers import ReviewCreateSerializer, ReviewSerializer
+
+        book = get_object_or_404(Book, slug=slug, status=Book.Status.PUBLISHED)
+
+        # Faqat kitobni tugatgan kitobxon sharh yoza oladi
+        completed = ReadingProgress.objects.filter(
+            user=request.user, book=book, status=ReadingProgress.Status.COMPLETED,
+        ).exists()
+        if not completed:
+            return Response(
+                {"detail": "Sharh yozish uchun avval kitobni oxirigacha o'qishingiz kerak."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if Review.objects.filter(user=request.user, book=book).exists():
+            return Response({"detail": "Siz bu kitobga allaqachon sharh yozgansiz."}, status=status.HTTP_409_CONFLICT)
+
+        serializer = ReviewCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review = Review.objects.create(
+            user=request.user, book=book,
+            rating=serializer.validated_data["rating"],
+            body=serializer.validated_data.get("body", ""),
+        )
+        return Response(
+            {**ReviewSerializer(review).data, "detail": "Sharhingiz moderatsiyaga yuborildi."},
+            status=status.HTTP_201_CREATED,
+        )

@@ -357,12 +357,12 @@ Bog'liq: M8 · Agent: `react-frontend`
 ### M16 — Sharh va moderatsiya · ~14 soat
 Bog'liq: M11 · Agent: `django-drf-backend` + `react-frontend`
 
-- [ ] `Review` modeli — `UNIQUE(user, book)`, moderatsiya statusi
-- [ ] Sharh yozish faqat kitob **tugatilgan** bo'lsa
-- [ ] Kutubxonachi uchun moderatsiya navbati (unfold admin)
-- [ ] Tasdiqlangach `review_approved` hodisasi → ball
-- [ ] Kitob reytingi faqat tasdiqlangan sharhlardan
-- [ ] Frontend: sharh ro'yxati + yozish formasi
+- [x] `Review` modeli — `UNIQUE(user, book)`, moderatsiya statusi
+- [x] Sharh yozish faqat kitob **tugatilgan** bo'lsa
+- [x] Kutubxonachi uchun moderatsiya navbati (unfold admin)
+- [x] Tasdiqlangach `review_approved` hodisasi → ball
+- [x] Kitob reytingi faqat tasdiqlangan sharhlardan
+- [x] Frontend: sharh ro'yxati + yozish formasi
 
 ---
 

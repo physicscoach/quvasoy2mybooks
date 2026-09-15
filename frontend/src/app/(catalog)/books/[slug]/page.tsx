@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ApiError } from "@/types/api";
 import { formatNumberUz } from "@/lib/utils";
+import { ReviewForm } from "@/components/catalog/ReviewForm";
 
 const DIFFICULTY_LABELS: Record<string, string> = {
   easy: "Oson",
@@ -75,8 +76,13 @@ export default async function BookDetailPage({ params }: BookPageProps) {
     ? `/read/${book.public_id}?file=${primaryFile.public_id}`
     : null;
 
+  const reviews = await serverApiFetch<
+    { public_id: string; username: string; rating: number; body: string; created_at: string }[]
+  >(`/books/${slug}/reviews`).catch(() => []);
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 md:flex-row">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8">
+    <div className="flex w-full flex-col gap-8 md:flex-row">
       <div className="mx-auto w-full max-w-[240px] shrink-0 md:mx-0">
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10">
           {book.cover_url ? (
@@ -198,6 +204,36 @@ export default async function BookDetailPage({ params }: BookPageProps) {
           )}
         </dl>
       </div>
+    </div>
+
+      <section className="mt-10">
+        <h2 className="mb-4 text-lg font-semibold">
+          Sharhlar {reviews.length > 0 && <span className="text-muted-foreground">({reviews.length})</span>}
+        </h2>
+
+        {readHref && <ReviewForm slug={slug} />}
+
+        <div className="mt-4 flex flex-col gap-3">
+          {reviews.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Hozircha sharhlar yo&apos;q. Kitobni o&apos;qib, birinchi sharhni qoldiring!
+            </p>
+          ) : (
+            reviews.map((r) => (
+              <div key={r.public_id} className="rounded-lg border border-border p-4">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-sm font-medium">{r.username}</span>
+                  <span className="flex items-center gap-0.5 text-sm text-yellow-500">
+                    {"★".repeat(r.rating)}
+                    <span className="text-muted-foreground">{"★".repeat(5 - r.rating)}</span>
+                  </span>
+                </div>
+                {r.body && <p className="text-sm text-muted-foreground">{r.body}</p>}
+              </div>
+            ))
+          )}
+        </div>
+      </section>
     </div>
   );
 }

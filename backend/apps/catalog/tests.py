@@ -134,3 +134,50 @@ class EpubIngestionTests(TestCase):
         bf.refresh_from_db()
         self.assertEqual(bf.processing_status, "ready")
         self.assertIsNotNone(bf.location_count)
+
+
+class ReviewTests(TestCase):
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.book = Book.objects.create(title="Sharh kitob", slug="sharh-kitob",
+                                        status=Book.Status.PUBLISHED, page_count=10)
+        from apps.accounts.models import User
+        self.user = User.objects.create_user(username="oquvchi", password="Kitob2026xyz", role="reader")
+
+    def _login(self):
+        self.client.post("/api/v1/auth/login", {"login": "oquvchi", "password": "Kitob2026xyz"},
+                         content_type="application/json")
+
+    def test_cannot_review_without_completing(self):
+        self._login()
+        resp = self.client.post(f"/api/v1/books/{self.book.slug}/reviews",
+                                {"rating": 5, "body": "Zo'r"}, content_type="application/json")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_review_after_completion(self):
+        from apps.reading.models import ReadingProgress
+        ReadingProgress.objects.create(user=self.user, book=self.book, status="completed", max_page_reached=10)
+        self._login()
+        resp = self.client.post(f"/api/v1/books/{self.book.slug}/reviews",
+                                {"rating": 4, "body": "Yaxshi kitob"}, content_type="application/json")
+        self.assertEqual(resp.status_code, 201)
+
+    def test_approved_review_updates_rating_and_shows(self):
+        from apps.catalog.admin import _recalc_rating
+        from apps.catalog.models import Review
+        Review.objects.create(user=self.user, book=self.book, rating=5, body="A'lo",
+                                  moderation_status=Review.ModerationStatus.APPROVED)
+        _recalc_rating(self.book)
+        self.book.refresh_from_db()
+        self.assertEqual(self.book.rating_count, 1)
+        self.assertEqual(float(self.book.rating_avg), 5.0)
+        # public'da faqat approved ko'rinadi
+        resp = self.client.get(f"/api/v1/books/{self.book.slug}/reviews")
+        self.assertEqual(len(resp.data), 1)
+
+    def test_pending_review_hidden(self):
+        from apps.catalog.models import Review
+        Review.objects.create(user=self.user, book=self.book, rating=3, moderation_status="pending")
+        resp = self.client.get(f"/api/v1/books/{self.book.slug}/reviews")
+        self.assertEqual(len(resp.data), 0)

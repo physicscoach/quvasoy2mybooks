@@ -91,8 +91,47 @@ class CategoryAdmin(ModelAdmin):
     readonly_fields = ("slug",)
 
 
+def _recalc_rating(book):
+    from django.db.models import Avg, Count
+
+    from .models import Review
+
+    agg = Review.objects.filter(book=book, moderation_status=Review.ModerationStatus.APPROVED).aggregate(
+        avg=Avg("rating"), n=Count("id")
+    )
+    book.rating_avg = round(agg["avg"] or 0, 2)
+    book.rating_count = agg["n"] or 0
+    book.save(update_fields=["rating_avg", "rating_count"])
+
+
 @admin.register(Review)
 class ReviewAdmin(ModelAdmin):
     list_display = ("user", "book", "rating", "moderation_status", "created_at")
     list_filter = ("moderation_status", "rating")
     search_fields = ("user__username", "book__title")
+    actions = ["approve_reviews", "reject_reviews"]
+
+    @admin.action(description="Sharhlarni tasdiqlash")
+    def approve_reviews(self, request, queryset):
+        from apps.core.events import emit
+
+        for review in queryset.exclude(moderation_status=Review.ModerationStatus.APPROVED):
+            review.moderation_status = Review.ModerationStatus.APPROVED
+            review.moderated_by = request.user
+            review.moderated_at = timezone.now()
+            review.save(update_fields=["moderation_status", "moderated_by", "moderated_at"])
+            _recalc_rating(review.book)
+            # tasdiqlangach ball (review_approved)
+            emit(review.user, "review_approved", source="reviews", book_id=review.book_id,
+                 idempotency_key=f"review:{review.book_id}:{review.user_id}")
+        self.message_user(request, "Tanlangan sharhlar tasdiqlandi.")
+
+    @admin.action(description="Sharhlarni rad etish")
+    def reject_reviews(self, request, queryset):
+        for review in queryset:
+            review.moderation_status = Review.ModerationStatus.REJECTED
+            review.moderated_by = request.user
+            review.moderated_at = timezone.now()
+            review.save(update_fields=["moderation_status", "moderated_by", "moderated_at"])
+            _recalc_rating(review.book)
+        self.message_user(request, "Tanlangan sharhlar rad etildi.")

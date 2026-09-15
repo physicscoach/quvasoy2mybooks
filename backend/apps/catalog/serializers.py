@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Author, Book, BookFile, Category
+from .models import Author, Book, BookFile, Category, Review
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -76,3 +76,23 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
     def get_categories(self, obj):
         return [{"name": bc.category.name, "slug": bc.category.slug} for bc in obj.book_categories.all()]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ("public_id", "username", "rating", "body", "created_at")
+        read_only_fields = ("public_id", "username", "created_at")
+
+
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ("rating", "body")
+
+    def validate_rating(self, value):
+        if not 1 <= value <= 5:
+            raise serializers.ValidationError("Baho 1 dan 5 gacha bo'lishi kerak.")
+        return value
