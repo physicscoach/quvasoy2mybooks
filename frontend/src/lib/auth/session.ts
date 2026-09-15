@@ -5,8 +5,8 @@ import { ApiError, type ApiErrorShape } from "@/types/api";
 // manzili. Brauzer buni ko'rmaydi.
 const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN ?? "http://localhost:8000";
 
-export const ACCESS_COOKIE = "access_token";
-export const REFRESH_COOKIE = "refresh_token";
+export const ACCESS_COOKIE = "at";
+export const REFRESH_COOKIE = "rt";
 
 /** Joriy foydalanuvchi kirganmi — faqat cookie mavjudligini tekshiradi (tezkor). */
 export async function hasSessionCookie(): Promise<boolean> {

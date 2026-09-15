@@ -20,9 +20,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { loginSchema, type LoginFormValues } from "@/lib/validators/auth.schema";
 import { login } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 function LoginForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const setUser = useAuthStore((s) => s.setUser);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -37,6 +39,7 @@ function LoginForm() {
     try {
       const me = await login(values);
       setUser(me);
+      queryClient.setQueryData(["me"], me);
       toast.success("Muvaffaqiyatli kirdingiz");
       const next = searchParams.get("next");
       router.push(next && next.startsWith("/") ? next : "/books");

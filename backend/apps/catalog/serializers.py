@@ -41,11 +41,8 @@ class BookListSerializer(serializers.ModelSerializer):
         return [ba.author.full_name for ba in obj.book_authors.all()]
 
     def get_cover_url(self, obj):
-        if not obj.cover:
-            return None
-        request = self.context.get("request")
-        url = obj.cover.url
-        return request.build_absolute_uri(url) if request else url
+        # Nisbiy URL — prod'da Caddy, dev'da Next rewrites /media ni backend'ga proksi qiladi
+        return obj.cover.url if obj.cover else None
 
     def get_formats(self, obj):
         # files prefetch qilingan (get_queryset) -> qo'shimcha so'rov yo'q
@@ -59,10 +56,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
     cover_url = serializers.SerializerMethodField()
 
     def get_cover_url(self, obj):
-        if not obj.cover:
-            return None
-        request = self.context.get("request")
-        return request.build_absolute_uri(obj.cover.url) if request else obj.cover.url
+        return obj.cover.url if obj.cover else None
 
     class Meta:
         model = Book

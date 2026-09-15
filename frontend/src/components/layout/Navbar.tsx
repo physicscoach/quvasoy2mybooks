@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/api/auth";
 import { toast } from "sonner";
 
@@ -25,12 +26,14 @@ export function Navbar() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const setUser = useAuthStore((s) => s.setUser);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
 
   async function handleLogout() {
     try {
       await logout();
       setUser(null);
+      queryClient.setQueryData(["me"], null);
       toast.success("Tizimdan chiqdingiz");
       router.push("/");
       router.refresh();

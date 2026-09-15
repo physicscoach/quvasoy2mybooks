@@ -166,17 +166,17 @@ boshqa foydalanuvchi tiketi → 403 · to'g'ri tiket bilan fayl keladi va
 ### M6 — Frontend poydevori · ~24 soat
 Bog'liq: M2 · Agent: `react-frontend`
 
-- [ ] `create-next-app` (TS, Tailwind, App Router, src-dir)
-- [ ] **`next.config.ts` rewrites:** `/api/:path*` → `localhost:8000` (dev'da ham
+- [x] `create-next-app` (TS, Tailwind, App Router, src-dir)
+- [x] **`next.config.ts` rewrites:** `/api/:path*` → `localhost:8000` (dev'da ham
       bitta origin → CORS yo'q)
-- [ ] shadcn/ui init + kerakli komponentlar
-- [ ] Papka tuzilmasi (C ilovasi 2-bo'limi)
-- [ ] `lib/api/client.ts` — **single-flight refresh** (majburiy)
-- [ ] `app/api/auth/{login,refresh,logout}/route.ts` — DRF proksi + cookie
-- [ ] `middleware.ts` — himoyalangan route'lar
-- [ ] Layout: navbar, footer, tungi rejim, mobil menyu
-- [ ] `/login`, `/register` sahifalari
-- [ ] Har auth'li `fetch` da `cache: 'no-store'` — **xavfsizlik talabi**
+- [x] shadcn/ui init + kerakli komponentlar
+- [x] Papka tuzilmasi (C ilovasi 2-bo'limi)
+- [x] `lib/api/client.ts` — **single-flight refresh** (majburiy)
+- [x] `app/api/auth/{login,refresh,logout}/route.ts` — DRF proksi + cookie
+- [x] `middleware.ts` — himoyalangan route'lar
+- [x] Layout: navbar, footer, tungi rejim, mobil menyu
+- [x] `/login`, `/register` sahifalari
+- [x] Har auth'li `fetch` da `cache: 'no-store'` — **xavfsizlik talabi**
 
 **Tekshiruv:** `npm run build` toza · login → cookie o'rnatiladi → `/profile`
 ochiladi · logout → himoyalangan sahifa `/login` ga qaytaradi.
@@ -186,13 +186,13 @@ ochiladi · logout → himoyalangan sahifa `/login` ga qaytaradi.
 ### M7 — Katalog UI · ~22 soat
 Bog'liq: M6, M3 · Agent: `react-frontend`
 
-- [ ] `/` bosh sahifa — tavsiya etilgan kitoblar
-- [ ] `/books` — qidiruv, janr filtri, sahifalash (URL query bilan)
-- [ ] `/books/[slug]` — detali, "O'qish" va (ruxsat bo'lsa) "Yuklab olish"
-- [ ] `BookCard`, `BookGrid`, `SearchFilters`, `Pagination`
-- [ ] Skeleton / bo'sh holat / xato holatlari (oq ekran YO'Q)
-- [ ] `next/image` bilan muqovalar, `generateMetadata` (SEO)
-- [ ] Mobil (~400px) tekshiruvi
+- [x] `/` bosh sahifa — tavsiya etilgan kitoblar
+- [x] `/books` — qidiruv, janr filtri, sahifalash (URL query bilan)
+- [x] `/books/[slug]` — detali, "O'qish" va (ruxsat bo'lsa) "Yuklab olish"
+- [x] `BookCard`, `BookGrid`, `SearchFilters`, `Pagination`
+- [x] Skeleton / bo'sh holat / xato holatlari (oq ekran YO'Q)
+- [x] `next/image` bilan muqovalar, `generateMetadata` (SEO)
+- [x] Mobil (~400px) tekshiruvi
 
 **Tekshiruv:** 20 ta sinov kitobi bilan katalog ishlaydi · qidiruv natija beradi ·
 telefon kengligida buzilmaydi.

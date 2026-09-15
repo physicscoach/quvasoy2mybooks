@@ -25,24 +25,24 @@ export async function fetchBooks(
   params: BookListParams,
   fetcher: Fetcher = apiFetch
 ): Promise<Paginated<BookSummary>> {
-  return fetcher<Paginated<BookSummary>>(`/books/${buildQuery(params)}`);
+  return fetcher<Paginated<BookSummary>>(`/books${buildQuery(params)}`);
 }
 
 export async function fetchBookBySlug(
   slug: string,
   fetcher: Fetcher = apiFetch
 ): Promise<BookDetail> {
-  return fetcher<BookDetail>(`/books/${slug}/`);
+  return fetcher<BookDetail>(`/books/${slug}`);
 }
 
 export async function fetchCategories(
   fetcher: Fetcher = apiFetch
 ): Promise<{ id: number; name: string; slug: string }[]> {
-  return fetcher(`/categories/`);
+  return fetcher(`/categories`);
 }
 
 export async function requestReadTicket(bookId: string | number): Promise<ReadTicket> {
-  return apiFetch<ReadTicket>(`/delivery/tickets/`, {
+  return apiFetch<ReadTicket>(`/delivery/tickets`, {
     method: "POST",
     body: JSON.stringify({ book_id: bookId }),
   });

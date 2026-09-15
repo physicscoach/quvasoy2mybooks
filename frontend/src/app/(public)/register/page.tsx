@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { registerSchema, type RegisterFormValues } from "@/lib/validators/auth.schema";
 import { register as registerRequest, login } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FIELD_NAMES = ["username", "email", "first_name", "password", "password_confirm"] as const;
 type FieldName = (typeof FIELD_NAMES)[number];
@@ -30,6 +31,7 @@ function isFieldName(value: string): value is FieldName {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const setUser = useAuthStore((s) => s.setUser);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -55,6 +57,7 @@ export default function RegisterPage() {
       });
       const me = await login({ login: values.username, password: values.password });
       setUser(me);
+      queryClient.setQueryData(["me"], me);
       toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz");
       router.push("/books");
       router.refresh();

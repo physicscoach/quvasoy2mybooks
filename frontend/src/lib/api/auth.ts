@@ -18,7 +18,7 @@ export interface RegisterPayload {
 }
 
 export async function login(payload: LoginPayload): Promise<Me> {
-  return apiFetch<Me>("/auth/login/", {
+  return apiFetch<Me>("/auth/login", {
     method: "POST",
     body: JSON.stringify(payload),
     skipAuthRetry: true,
@@ -26,11 +26,11 @@ export async function login(payload: LoginPayload): Promise<Me> {
 }
 
 export async function logout(): Promise<void> {
-  await apiFetch("/auth/logout/", { method: "POST", skipAuthRetry: true }).catch(() => {});
+  await apiFetch("/auth/logout", { method: "POST", skipAuthRetry: true }).catch(() => {});
 }
 
 export async function register(payload: RegisterPayload): Promise<Me> {
-  return apiFetch<Me>("/auth/register/", {
+  return apiFetch<Me>("/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
     skipAuthRetry: true,
@@ -38,5 +38,5 @@ export async function register(payload: RegisterPayload): Promise<Me> {
 }
 
 export async function fetchMe(): Promise<Me> {
-  return apiFetch<Me>("/auth/me/");
+  return apiFetch<Me>("/auth/me");
 }

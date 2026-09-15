@@ -40,6 +40,7 @@ class BookViewSet(viewsets.ReadOnlyModelViewSet):
 
 class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
+    pagination_class = None
     lookup_field = "slug"
     serializer_class = AuthorSerializer
     queryset = Author.objects.all().order_by("full_name")
@@ -49,6 +50,7 @@ class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
+    pagination_class = None
     lookup_field = "slug"
     serializer_class = CategorySerializer
     queryset = Category.objects.filter(is_active=True).order_by("sort_order", "name")
