@@ -38,15 +38,38 @@ class LoginSerializer(serializers.Serializer):
 
 
 class MeSerializer(serializers.ModelSerializer):
-    points_balance = serializers.IntegerField(source="reader_stats.points_balance", default=0, read_only=True)
-    points_lifetime = serializers.IntegerField(source="reader_stats.points_lifetime", default=0, read_only=True)
-    level = serializers.CharField(source="reader_stats.level.name", default=None, read_only=True)
+    stats = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             "public_id", "username", "email", "first_name", "last_name",
-            "role", "avatar", "timezone", "locale",
-            "points_balance", "points_lifetime", "level",
+            "role", "avatar", "timezone", "locale", "stats",
         )
         read_only_fields = fields
+
+    def get_stats(self, obj):
+        from apps.gamification.models import Level
+
+        rs = getattr(obj, "reader_stats", None)
+        if rs is None:
+            return {
+                "points_balance": 0, "points_lifetime": 0, "streak_days": 0,
+                "longest_streak": 0, "last_activity_date": None,
+                "level": {"title": "Yangi kitobxon", "min_points": 0, "next_level_min_points": None},
+            }
+        current = rs.level
+        # keyingi daraja: joriy min_points'dan katta eng kichik min_points
+        next_level = Level.objects.filter(min_points__gt=(current.min_points if current else 0)).order_by("min_points").first()
+        return {
+            "points_balance": rs.points_balance,
+            "points_lifetime": rs.points_lifetime,
+            "streak_days": rs.current_streak,
+            "longest_streak": rs.longest_streak,
+            "last_activity_date": rs.last_activity_date,
+            "level": {
+                "title": current.name if current else "Yangi kitobxon",
+                "min_points": current.min_points if current else 0,
+                "next_level_min_points": next_level.min_points if next_level else None,
+            },
+        }

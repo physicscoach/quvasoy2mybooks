@@ -14,7 +14,7 @@ export const metadata = {
 
 async function getMe(): Promise<Me | null> {
   try {
-    return await serverApiFetch<Me>("/me/");
+    return await serverApiFetch<Me>("/auth/me");
   } catch (err) {
     if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
       return null;
