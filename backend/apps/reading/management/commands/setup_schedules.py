@@ -12,6 +12,7 @@ class Command(BaseCommand):
             ("apps.reading.tasks.flush_dirty_sessions", 1),
             ("apps.reading.tasks.close_stale_sessions", 2),
             ("apps.gamification.tasks.process_events", 1),
+            ("apps.integrity.tasks.scan_users", 1440),
         ]
         created = 0
         for func, minutes in specs:

@@ -100,3 +100,35 @@ def _sum_delta():
     from django.db.models import Sum
 
     return Sum("delta")
+
+
+def reverse_user_points(user, reason: str = "anti_cheat_reversal", description: str = "") -> int:
+    """Foydalanuvchining barcha musbat ballarini bekor qiladi (anti-cheat).
+
+    Ledger'dan qator o'chirilmaydi — manfiy korreksiya qatori qo'shiladi.
+    Balansni 0 ga tushiradi. Qaytarilgan ball miqdorini qaytaradi.
+    """
+    from django.utils import timezone
+
+    from apps.accounts.models import ReaderStats
+
+    with transaction.atomic():
+        stats = ReaderStats.objects.select_for_update().get(user=user)
+        to_reverse = stats.points_balance
+        if to_reverse <= 0:
+            return 0
+        txn = PointTransaction(
+            user=user,
+            delta=-to_reverse,
+            balance_after=0,
+            reason_code=reason,
+            description=description or "Anti-cheat: ball bekor qilindi",
+            idempotency_key=f"reversal:{user.id}:{timezone.now().timestamp()}",
+        )
+        txn._allow_save = True
+        txn.save()
+        stats.points_balance = 0
+        # lifetime ham tushiriladi (reyting adolatli bo'lishi uchun)
+        stats.points_lifetime = max(stats.points_lifetime - to_reverse, 0)
+        stats.save(update_fields=["points_balance", "points_lifetime"])
+    return to_reverse

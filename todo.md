@@ -309,13 +309,13 @@ ketilsa streak nolga tushadi · mukofot sotib olinsa daraja tushmaydi.
 ### M13 — Anti-cheat nazorati (integrity) · ~16 soat
 Bog'liq: M11 · Agent: `django-drf-backend`
 
-- [ ] `SuspiciousActivity` modeli
-- [ ] Kechalik `scan_users()` — risk skor (reja 6.5-jadvali, 8 signal)
-- [ ] Admin sahifasi: "Shubhali faollik" — sabablar, dwell grafigi, ball tarixi
-- [ ] Amallar: e'tiborsiz qoldirish / **ballni qaytarish** / reytingdan chiqarish
-- [ ] Ballni qaytarish = manfiy ledger qatori + `AuditLog`
-- [ ] `risk >= 85` da reader'da yumshoq "Hali o'qiyapsizmi?" so'rovi
-- [ ] **Avtomatik bloklash YO'Q** (noto'g'ri pozitiv real o'quvchini haydaydi)
+- [x] `SuspiciousActivity` modeli
+- [x] Kechalik `scan_users()` — risk skor (reja 6.5-jadvali, 8 signal)
+- [x] Admin sahifasi: "Shubhali faollik" — sabablar, dwell grafigi, ball tarixi
+- [x] Amallar: e'tiborsiz qoldirish / **ballni qaytarish** / reytingdan chiqarish
+- [x] Ballni qaytarish = manfiy ledger qatori + `AuditLog`
+- [x] `risk >= 85` da reader'da yumshoq "Hali o'qiyapsizmi?" so'rovi
+- [x] **Avtomatik bloklash YO'Q** (noto'g'ri pozitiv real o'quvchini haydaydi)
 
 **Tekshiruv:** sun'iy "bot" ssenariysi yaratib, risk skor yuqori chiqishini
 tekshirish · oddiy foydalanuvchi hech qachon flag olmasligi.
