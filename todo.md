@@ -51,10 +51,10 @@ Bog'liq: M0 · Agent: yo'q (qo'lda)
 > Ishlamasa — M5 va M8 boshqacha quriladi. Kodga kirishdan oldin javob kerak.
 
 - [x] Sinov muhiti tayyor (`docs/spike-caddy-range/`)
-- [ ] Docker Desktop yoqilgan
-- [ ] `bash docs/spike-caddy-range/run.sh` ishga tushirildi
-- [ ] Natija: `206 Partial Content` + `Content-Range` + baytlar mos
-- [ ] Agar MUVAFFAQIYATSIZ bo'lsa: zaxira variant tanlandi (Django `FileResponse`)
+- [x] Docker Desktop yoqilgan
+- [x] `bash docs/spike-caddy-range/run.sh` ishga tushirildi
+- [x] Natija: `206 Partial Content` + `Content-Range` + baytlar mos
+- [x] Agar MUVAFFAQIYATSIZ bo'lsa: zaxira variant tanlandi (Django `FileResponse`)
       va M5 rejasi shunga moslashtirildi
 
 **Tekshiruv:** "MUVAFFAQIYAT" xabari yoki zaxira variant bo'yicha yozma qaror.
