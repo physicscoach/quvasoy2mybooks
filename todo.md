@@ -204,18 +204,18 @@ Bog'liq: M7, M5 · Agent: `react-frontend`
 
 > Eng qiyin frontend qismi. Alohida vaqt ajrating, shoshmang.
 
-- [ ] `react-pdf` (PDF.js) — `next/dynamic({ssr:false})` bilan, alohida chunk
-- [ ] **`ReaderEngine` interfeysi** — keyin EPUB qo'shilganda toolbar va tracker
+- [x] `react-pdf` (PDF.js) — `next/dynamic({ssr:false})` bilan, alohida chunk
+- [x] **`ReaderEngine` interfeysi** — keyin EPUB qo'shilganda toolbar va tracker
       o'zgarmasligi uchun
-- [ ] Imzolangan URL: `POST /delivery/tickets/` dan olinadi, muddat tugashiga
+- [x] Imzolangan URL: `POST /delivery/tickets/` dan olinadi, muddat tugashiga
       1 daqiqa qolganda fon rejimida yangilanadi, joriy sahifa saqlanadi
-- [ ] Sahifa navigatsiyasi, zoom, toolbar (mobil'da avtomatik yashirinadi)
-- [ ] Sozlamalar: shrift/zoom, tungi rejim, sahifa/scroll — Zustand + persist
-- [ ] Oxirgi o'qilgan joyni saqlash va tiklash (qurilmalar orasida sinxron)
-- [ ] Touch: swipe bilan sahifa almashtirish
-- [ ] Yumshoq himoya: `contextmenu` bloklash, print CSS, `user-select: none`
-- [ ] `ReaderErrorBoundary` — xatoda tushunarli xabar
-- [ ] **iOS Safari va Android Chrome'da real qurilmada sinov**
+- [x] Sahifa navigatsiyasi, zoom, toolbar (mobil'da avtomatik yashirinadi)
+- [x] Sozlamalar: shrift/zoom, tungi rejim, sahifa/scroll — Zustand + persist
+- [x] Oxirgi o'qilgan joyni saqlash va tiklash (qurilmalar orasida sinxron)
+- [x] Touch: swipe bilan sahifa almashtirish
+- [x] Yumshoq himoya: `contextmenu` bloklash, print CSS, `user-select: none`
+- [x] `ReaderErrorBoundary` — xatoda tushunarli xabar
+- [x] **iOS Safari va Android Chrome'da real qurilmada sinov**
 
 **Tekshiruv:** 50 MB PDF ochiladi va sahifalab yuklanadi (butun fayl emas) ·
 o'qishni to'xtatib qayta kirilsa o'sha sahifadan davom etadi · telefonda ishlaydi.
@@ -246,15 +246,15 @@ haqiqiy o'qish sahifa krediti beradi · ikkinchi tab birinchisini yopadi.
 ### M10 — Telemetriya (frontend tracker) · ~14 soat
 Bog'liq: M8, M9 · Agent: `react-frontend`
 
-- [ ] `hooks/useReadingTracker.ts` — har 30s hisoblanadi, har 2 daqiqada
+- [x] `hooks/useReadingTracker.ts` — har 30s hisoblanadi, har 2 daqiqada
       **batch** yuboriladi
-- [ ] Faollik sharti: `visibilityState==='visible'` VA `hasFocus()` VA oxirgi 60s
+- [x] Faollik sharti: `visibilityState==='visible'` VA `hasFocus()` VA oxirgi 60s
       da harakat
-- [ ] `client_seq` qat'iy o'suvchi (server takrorni tashlaydi)
-- [ ] `pagehide`/`visibilitychange` da `navigator.sendBeacon`
-- [ ] Offline navbat (IndexedDB) + `online` hodisasida yuborish
-- [ ] Reader bilan integratsiya, foydalanuvchiga ko'rinmaydi
-- [ ] "O'qish hisobga olinmoqda" indikatori (ball ~1 daqiqa kechikadi)
+- [x] `client_seq` qat'iy o'suvchi (server takrorni tashlaydi)
+- [x] `pagehide`/`visibilitychange` da `navigator.sendBeacon`
+- [x] Offline navbat (IndexedDB) + `online` hodisasida yuborish
+- [x] Reader bilan integratsiya, foydalanuvchiga ko'rinmaydi
+- [x] "O'qish hisobga olinmoqda" indikatori (ball ~1 daqiqa kechikadi)
 
 **Tekshiruv:** 5 daqiqa o'qib, internetni uzib-ulab ko'rish — telemetriya
 yo'qolmasligi kerak · tabni yopganda oxirgi bufer yetib borishi kerak.

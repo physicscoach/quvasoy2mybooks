@@ -1,7 +1,7 @@
 "use client";
 
 import { openDB, type IDBPDatabase } from "idb";
-import type { HeartbeatPayload } from "@/types/reader";
+import type { SendHeartbeatsPayload } from "@/types/reader";
 
 const DB_NAME = "kutubxona-offline";
 const STORE_NAME = "heartbeat-queue";
@@ -24,22 +24,20 @@ function getDb() {
 
 /** Internet uzilganda heartbeat paketlarini vaqtincha saqlash navbati. */
 export function useOfflineQueue() {
-  async function enqueue(sessionId: string, heartbeats: HeartbeatPayload[]) {
+  async function enqueue(payload: SendHeartbeatsPayload) {
     const db = await getDb();
     if (!db) return;
-    const key = `${sessionId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    await db.put(STORE_NAME, { key, sessionId, heartbeats });
+    const key = `${payload.session_public_id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    await db.put(STORE_NAME, { key, payload });
   }
 
-  async function flush(
-    send: (sessionId: string, heartbeats: HeartbeatPayload[]) => Promise<unknown>
-  ) {
+  async function flush(send: (payload: SendHeartbeatsPayload) => Promise<unknown>) {
     const db = await getDb();
     if (!db) return;
     const all = await db.getAll(STORE_NAME);
-    for (const item of all as { key: string; sessionId: string; heartbeats: HeartbeatPayload[] }[]) {
+    for (const item of all as { key: string; payload: SendHeartbeatsPayload }[]) {
       try {
-        await send(item.sessionId, item.heartbeats);
+        await send(item.payload);
         await db.delete(STORE_NAME, item.key);
       } catch {
         // internet hali yo'q — keyingi urinishga qoldiramiz

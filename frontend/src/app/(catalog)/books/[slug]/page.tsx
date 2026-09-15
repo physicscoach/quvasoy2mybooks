@@ -68,6 +68,12 @@ export default async function BookDetailPage({ params }: BookPageProps) {
 
   const rating = Number(book.rating_avg);
   const isDownloadable = book.is_downloadable;
+  const primaryFile =
+    book.files.find((f) => f.format === "pdf" && f.is_primary) ??
+    book.files.find((f) => f.format === "pdf");
+  const readHref = primaryFile
+    ? `/read/${book.public_id}?file=${primaryFile.public_id}`
+    : null;
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 md:flex-row">
@@ -91,7 +97,13 @@ export default async function BookDetailPage({ params }: BookPageProps) {
         </div>
 
         <div className="mt-4 flex flex-col gap-2">
-          <Button size="lg" className="w-full" render={<Link href={`/read/${book.public_id}`} />}>
+          <Button
+            size="lg"
+            className="w-full"
+            disabled={!readHref}
+            title={readHref ? undefined : "O'qish uchun fayl mavjud emas"}
+            render={readHref ? <Link href={readHref} /> : undefined}
+          >
             <BookOpen className="mr-1.5 size-4" />
             O&apos;qish
           </Button>

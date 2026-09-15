@@ -41,9 +41,20 @@ export async function fetchCategories(
   return fetcher(`/categories`);
 }
 
-export async function requestReadTicket(bookId: string | number): Promise<ReadTicket> {
+export type DeliveryMode = "read" | "download";
+
+/** Fayl (PDF) o'qish/yuklab olish uchun bir martalik tiket so'raydi. */
+export async function requestReadTicket(
+  bookPublicId: string,
+  filePublicId: string,
+  mode: DeliveryMode = "read"
+): Promise<ReadTicket> {
   return apiFetch<ReadTicket>(`/delivery/tickets`, {
     method: "POST",
-    body: JSON.stringify({ book_id: bookId }),
+    body: JSON.stringify({
+      book_public_id: bookPublicId,
+      file_public_id: filePublicId,
+      mode,
+    }),
   });
 }

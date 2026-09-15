@@ -1,35 +1,45 @@
 import { apiFetch } from "@/lib/api/client";
-import type { HeartbeatPayload, ReaderLocation } from "@/types/reader";
+import type {
+  CloseSessionPayload,
+  HeartbeatsResponse,
+  OpenSessionPayload,
+  ReadingProgress,
+  ReadingSession,
+  SendHeartbeatsPayload,
+} from "@/types/reader";
 
-export interface CreateSessionResponse {
-  session_id: string;
-}
-
-export async function createReadingSession(bookId: string): Promise<CreateSessionResponse> {
-  return apiFetch<CreateSessionResponse>(`/reading/sessions`, {
+/** Yangi o'qish seansini ochadi. */
+export async function openReadingSession(payload: OpenSessionPayload): Promise<ReadingSession> {
+  return apiFetch<ReadingSession>(`/reading/sessions/open`, {
     method: "POST",
-    body: JSON.stringify({ book_id: bookId }),
+    body: JSON.stringify(payload),
   });
 }
 
-export async function fetchProgress(bookId: string): Promise<{ location: ReaderLocation | null }> {
-  return apiFetch(`/reading/sessions/${bookId}/progress`);
+/** Seansni yopadi (sahifadan chiqishda yoki oxirgi holatni saqlashda). */
+export async function closeReadingSession(payload: CloseSessionPayload): Promise<ReadingSession> {
+  return apiFetch<ReadingSession>(`/reading/sessions/close`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
-/** Har 2 daqiqada to'plangan heartbeat'lar shu yerdan massiv holda yuboriladi. */
-export async function sendHeartbeats(
-  sessionId: string,
-  heartbeats: HeartbeatPayload[]
-): Promise<{ points_pending?: number }> {
-  return apiFetch(`/reading/sessions/${sessionId}/heartbeats`, {
+/** To'plangan heartbeat paketini serverga yuboradi (har ~2 daqiqada). */
+export async function sendHeartbeats(payload: SendHeartbeatsPayload): Promise<HeartbeatsResponse> {
+  return apiFetch<HeartbeatsResponse>(`/reading/heartbeats`, {
     method: "POST",
-    body: JSON.stringify({ heartbeats }),
+    body: JSON.stringify(payload),
   });
 }
 
 /** Tab yopilayotganda — sendBeacon orqali, javob kutilmaydi. */
-export function sendHeartbeatsBeacon(sessionId: string, heartbeats: HeartbeatPayload[]) {
+export function sendHeartbeatsBeacon(payload: SendHeartbeatsPayload): boolean {
   if (typeof navigator === "undefined" || !navigator.sendBeacon) return false;
-  const blob = new Blob([JSON.stringify({ heartbeats })], { type: "application/json" });
-  return navigator.sendBeacon(`/api/v1/reading/sessions/${sessionId}/heartbeats`, blob);
+  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+  return navigator.sendBeacon(`/api/v1/reading/heartbeats`, blob);
+}
+
+/** Kitob bo'yicha oxirgi o'qish holati (davom etish sahifasi uchun). */
+export async function fetchReadingProgress(bookPublicId: string): Promise<ReadingProgress> {
+  return apiFetch<ReadingProgress>(`/reading/progress/${bookPublicId}`);
 }
