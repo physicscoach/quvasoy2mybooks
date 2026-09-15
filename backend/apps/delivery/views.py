@@ -113,14 +113,25 @@ class FileDeliveryView(APIView):
             if not decision.allowed:
                 return Response({"detail": decision.reason}, status=status.HTTP_403_FORBIDDEN)
 
-        accel_path = _internal_accel_path(file)
+        content_type = "application/pdf" if file.format == "pdf" else "application/epub+zip"
+
+        # DEV: Caddy yo'q, X-Accel-Redirect'ni bajaruvchi yo'q -> Django faylni o'zi beradi
+        # (Range qo'llab-quvvatlanadi). PROD: X-Accel-Redirect, baytlarni Caddy uzatadi.
+        from django.conf import settings as dj_settings
+
+        if dj_settings.DEBUG:
+            from django.http import FileResponse
+
+            response = FileResponse(file.file.open("rb"), content_type=content_type)
+            if payload.mode == "download":
+                response["Content-Disposition"] = f'attachment; filename="{os.path.basename(file.file.name)}"'
+            return response
 
         response = HttpResponse(status=200)
-        response["X-Accel-Redirect"] = accel_path
-        response["Content-Type"] = "application/pdf" if file.format == "pdf" else "application/epub+zip"
+        response["X-Accel-Redirect"] = _internal_accel_path(file)
+        response["Content-Type"] = content_type
         if payload.mode == "download":
-            filename = os.path.basename(file.file.name)
-            response["Content-Disposition"] = f'attachment; filename="{filename}"'
+            response["Content-Disposition"] = f'attachment; filename="{os.path.basename(file.file.name)}"'
         return response
 
 
