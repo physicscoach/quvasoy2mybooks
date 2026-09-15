@@ -47,8 +47,28 @@ class BookAdmin(ModelAdmin):
 
     @admin.action(description="Tanlangan kitoblarni nashr qilish")
     def publish_books(self, request, queryset):
-        updated = queryset.update(status=Book.Status.PUBLISHED, published_at=timezone.now())
-        self.message_user(request, f"{updated} ta kitob nashr qilindi.")
+        from django.contrib import messages
+
+        published, skipped = 0, 0
+        for book in queryset:
+            blockers = book.publish_blockers()
+            if blockers:
+                skipped += 1
+                self.message_user(
+                    request,
+                    f"'{book.title}' nashr qilinmadi: {', '.join(blockers)}.",
+                    level=messages.WARNING,
+                )
+                continue
+            book.status = Book.Status.PUBLISHED
+            if book.published_at is None:
+                book.published_at = timezone.now()
+            book.save(update_fields=["status", "published_at", "updated_at"])
+            published += 1
+        if published:
+            self.message_user(request, f"{published} ta kitob nashr qilindi.")
+        if skipped and not published:
+            self.message_user(request, f"{skipped} ta kitob nashr qilinmadi (yuqoriga qarang).", level=messages.WARNING)
 
     @admin.action(description="Tanlangan kitoblarni yashirish")
     def unpublish_books(self, request, queryset):

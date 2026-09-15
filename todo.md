@@ -105,18 +105,18 @@ Bog'liq: M1 · Agent: `django-drf-backend`
 ### M3 — Katalog modellari va API · ~18 soat
 Bog'liq: M1 · Agent: `django-drf-backend`
 
-- [ ] `Author`, `Category` modellari
-- [ ] `Book` — status (draft/processing/ready/published/hidden), `is_downloadable`,
+- [x] `Author`, `Category` modellari
+- [x] `Book` — status (draft/processing/ready/published/hidden), `is_downloadable`,
       `protection_level`, **`rights_status`** (mualliflik huquqi maqomi — 1-xavf),
       `page_count`, `cover`, `slug`, `language`
-- [ ] `BookAuthor`, `BookCategory` (N:M through)
-- [ ] `BookFile` — format (pdf/epub), **`sha256` UNIQUE** (dublikat), `size_bytes`,
+- [x] `BookAuthor`, `BookCategory` (N:M through)
+- [x] `BookFile` — format (pdf/epub), **`sha256` UNIQUE** (dublikat), `size_bytes`,
       `page_count`, `is_downloadable`
-- [ ] Public API (`AllowAny`, faqat `published`): kitob ro'yxati, detali, janr, muallif
-- [ ] Qidiruv (`pg_trgm`/`icontains`) + janr/til filtri + saralash
-- [ ] Status o'tish validatsiyasi: `PUBLISHED` ga faqat `READY` dan, muqova va
+- [x] Public API (`AllowAny`, faqat `published`): kitob ro'yxati, detali, janr, muallif
+- [x] Qidiruv (`pg_trgm`/`icontains`) + janr/til filtri + saralash
+- [x] Status o'tish validatsiyasi: `PUBLISHED` ga faqat `READY` dan, muqova va
       `page_count` bo'lsa
-- [ ] Indekslar (B ilovasi 4.3-bo'limi)
+- [x] Indekslar (B ilovasi 4.3-bo'limi)
 
 **Tekshiruv:** admin'da qo'lda kitob yaratiladi · `/api/v1/books/` anonim ochiladi ·
 `draft` kitob public ro'yxatda **ko'rinmaydi**.
@@ -128,15 +128,15 @@ Bog'liq: M3 · Agent: `django-drf-backend`
 
 > Bu kutubxonachining ASOSIY ish joyi — qulayligi mahsulot sifati bilan teng.
 
-- [ ] `Book` unfold admin: fayl inline, status filtri, `publish`/`unpublish` action
-- [ ] Avtomatik to'ldiriladigan maydonlar `readonly` (page_count, sha256, size)
-- [ ] `ingestion.tasks.process_book_file()` — django-q2 vazifasi
-- [ ] Validatsiya: magic bytes, hajm ≤200MB, parol bilan himoyalanmaganmi
-- [ ] `sha256` → dublikat aniqlash (bir xil fayl ikki marta yuklanmasin)
-- [ ] PDF: PyMuPDF bilan sahifa soni + 0-sahifadan muqova (WebP 600px + 200px thumb)
-- [ ] EPUB: ebooklib bilan OPF metadata (nom, muallif, til) + muqova
-- [ ] Xatoda `status=failed` + sabab admin'da ko'rinadi
-- [ ] `qcluster` ishlayotganini tekshirish
+- [x] `Book` unfold admin: fayl inline, status filtri, `publish`/`unpublish` action
+- [x] Avtomatik to'ldiriladigan maydonlar `readonly` (page_count, sha256, size)
+- [x] `ingestion.tasks.process_book_file()` — django-q2 vazifasi
+- [x] Validatsiya: magic bytes, hajm ≤200MB, parol bilan himoyalanmaganmi
+- [x] `sha256` → dublikat aniqlash (bir xil fayl ikki marta yuklanmasin)
+- [x] PDF: PyMuPDF bilan sahifa soni + 0-sahifadan muqova (WebP 600px + 200px thumb)
+- [x] EPUB: ebooklib bilan OPF metadata (nom, muallif, til) + muqova
+- [x] Xatoda `status=failed` + sabab admin'da ko'rinadi
+- [x] `qcluster` ishlayotganini tekshirish
 
 **Tekshiruv:** admin'da PDF tashlanadi → 10 soniyada sahifa soni va muqova
 avtomatik paydo bo'ladi → `READY` → `Publish` bosiladi → public API'da ko'rinadi.
@@ -146,16 +146,16 @@ avtomatik paydo bo'ladi → `READY` → `Publish` bosiladi → public API'da ko'
 ### M5 — Himoyalangan fayl yetkazish · ~14 soat
 Bog'liq: M3, **M0.5** · Agent: `django-drf-backend`
 
-- [ ] `delivery.tickets` — HMAC-SHA256 stateless tiket
+- [x] `delivery.tickets` — HMAC-SHA256 stateless tiket
       (`user_id, book_id, file_id, mode, exp, jti`)
-- [ ] `POST /delivery/tickets/` — ruxsat + kunlik limit tekshiradi, TTL: o'qish 120s,
+- [x] `POST /delivery/tickets/` — ruxsat + kunlik limit tekshiradi, TTL: o'qish 120s,
       yuklash 60s (bir martalik)
-- [ ] `GET /files/t/<token>` — tiketni tekshiradi, **`X-Accel-Redirect` qaytaradi**
+- [x] `GET /files/t/<token>` — tiketni tekshiradi, **`X-Accel-Redirect` qaytaradi**
       (faylni O'ZI stream qilmaydi)
-- [ ] `DownloadLog` — kim, qachon, qaysi fayl, IP, status (rad etish ham loglanadi)
-- [ ] Yagona `can_download(user, file)` funksiyasi + unga test
-- [ ] Kunlik limit darajaga qarab (reja 7.3)
-- [ ] Fayllar `BOOKS_ROOT` da, Caddy `root` ularni ko'rmaydi
+- [x] `DownloadLog` — kim, qachon, qaysi fayl, IP, status (rad etish ham loglanadi)
+- [x] Yagona `can_download(user, file)` funksiyasi + unga test
+- [x] Kunlik limit darajaga qarab (reja 7.3)
+- [x] Fayllar `BOOKS_ROOT` da, Caddy `root` ularni ko'rmaydi
 
 **Tekshiruv:** tiketsiz `/files/...` → 403 · muddati o'tgan tiket → 403 ·
 boshqa foydalanuvchi tiketi → 403 · to'g'ri tiket bilan fayl keladi va

@@ -1,7 +1,7 @@
 """JWT httpOnly cookie orqali autentifikatsiya (reja 11.3 / A-ilova 4.3)."""
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 
 class CookieJWTAuthentication(JWTAuthentication):

@@ -37,6 +37,22 @@ def _sha256_of(file_obj) -> str:
     return digest.hexdigest()
 
 
+def _pixmap_to_webp(pix, max_width: int = 600) -> bytes:
+    """PyMuPDF pixmap -> WebP (Pillow orqali). PyMuPDF webp'ni bevosita bermaydi."""
+    import io
+
+    from PIL import Image
+
+    png_bytes = pix.tobytes("png")
+    img = Image.open(io.BytesIO(png_bytes)).convert("RGB")
+    if img.width > max_width:
+        ratio = max_width / img.width
+        img = img.resize((max_width, int(img.height * ratio)), Image.LANCZOS)
+    out = io.BytesIO()
+    img.save(out, format="WEBP", quality=82, method=4)
+    return out.getvalue()
+
+
 def _mark_failed(book_file, reason: str):
     from apps.catalog.models import BookFile
 
@@ -119,8 +135,8 @@ def _process_pdf(book_file):
 
         if not book.cover and doc.page_count > 0:
             page = doc.load_page(0)
-            pix = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5))
-            webp_bytes = pix.tobytes("webp")
+            pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+            webp_bytes = _pixmap_to_webp(pix)
             book.cover.save(f"{book.slug or book.pk}.webp", ContentFile(webp_bytes), save=False)
 
         book.save()
@@ -133,13 +149,12 @@ def _process_epub(book_file):
     import ebooklib
     from ebooklib import epub
 
-    with book_file.file.open("rb") as f:
-        tmp_path = book_file.file.path if hasattr(book_file.file, "path") else None
-
-    # ebooklib fayl yolini talab qiladi (storage FileSystemStorage bolgani uchun mavjud)
-    book_epub = epub.read_epub(tmp_path) if tmp_path else None
-    if book_epub is None:
+    # ebooklib fayl yo'lini talab qiladi. protected_book_storage — FileSystemStorage,
+    # shuning uchun .path mavjud.
+    tmp_path = getattr(book_file.file, "path", None)
+    if not tmp_path:
         return
+    book_epub = epub.read_epub(tmp_path)
 
     book = book_file.book
     titles = book_epub.get_metadata("DC", "title")

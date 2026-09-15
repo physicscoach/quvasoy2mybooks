@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.text import slugify
 
 from apps.core.models import TimeStampedModel
+from apps.core.storage import protected_book_storage
 
 
 class Author(TimeStampedModel):
@@ -137,6 +138,19 @@ class Book(TimeStampedModel):
     def __str__(self):
         return self.title
 
+    def publish_blockers(self):
+        """Nashr qilishga to'siq bo'lgan sabablar ro'yxati (bo'sh = nashrga tayyor)."""
+        problems = []
+        if self.status not in (self.Status.READY, self.Status.HIDDEN, self.Status.PUBLISHED):
+            problems.append("holati 'Tayyor' emas")
+        if not self.page_count:
+            problems.append("sahifalar soni aniqlanmagan")
+        if not self.cover:
+            problems.append("muqova yo'q")
+        if not self.files.filter(processing_status=BookFile.ProcessingStatus.READY).exists():
+            problems.append("tayyor fayl yo'q")
+        return problems
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)[:320] or str(self.public_id)
@@ -189,7 +203,7 @@ class BookFile(TimeStampedModel):
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="files", verbose_name="Kitob")
     format = models.CharField("Format", max_length=8, choices=Format.choices)
-    file = models.FileField("Fayl", upload_to="books/%Y/%m/")
+    file = models.FileField("Fayl", upload_to="%Y/%m/", storage=protected_book_storage)
     original_filename = models.CharField("Original fayl nomi", max_length=255, blank=True, default="")
     size_bytes = models.PositiveBigIntegerField("Hajmi, bayt", default=0)
     sha256 = models.CharField("SHA-256 checksum", max_length=64, unique=True, null=True, blank=True)

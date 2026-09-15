@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import DailyActivity, ReadingHeartbeat, ReadingProgress, ReadingSession
+from .models import DailyActivity, ReadingProgress, ReadingSession
 
 
 class OpenSessionSerializer(serializers.Serializer):
