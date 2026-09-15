@@ -379,11 +379,11 @@ Bog'liq: M12
 ### M18 — Mukofot do'koni · ~14 soat
 Bog'liq: M12
 
-- [ ] `Reward`, `RewardRedemption` modellari
-- [ ] `spend_points()` — zaxira va balans tekshiruvi bilan
-- [ ] **Mukofot yetkazish jarayoni tayyor bo'lgandagina yoqing** — bajarilmagan
+- [x] `Reward`, `RewardRedemption` modellari
+- [x] `spend_points()` — zaxira va balans tekshiruvi bilan
+- [x] **Mukofot yetkazish jarayoni tayyor bo'lgandagina yoqing** — bajarilmagan
       mukofot eng yomon foydalanuvchi tajribasi
-- [ ] Frontend: `/rewards` sahifasi
+- [x] Frontend: `/rewards` sahifasi
 
 ---
 

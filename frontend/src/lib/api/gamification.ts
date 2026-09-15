@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api/client";
 import type {
+  Reward,
   Badge,
   LeaderboardEntry,
   Paginated,
@@ -25,4 +26,12 @@ export async function fetchMyBadges(fetcher: Fetcher = apiFetch): Promise<UserBa
 export async function fetchMyPoints(fetcher: Fetcher = apiFetch): Promise<PointTransaction[]> {
   const page = await fetcher<Paginated<PointTransaction>>("/gamification/me/points");
   return page.results;
+}
+
+export async function fetchRewards(fetcher: Fetcher = apiFetch): Promise<Reward[]> {
+  return fetcher<Reward[]>("/gamification/rewards");
+}
+
+export async function redeemReward(code: string): Promise<void> {
+  await apiFetch(`/gamification/rewards/${code}/redeem`, { method: "POST" });
 }

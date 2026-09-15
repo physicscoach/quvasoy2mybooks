@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Menu, X, LogOut, User as UserIcon, Trophy } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User as UserIcon, Trophy, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -91,6 +91,10 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => router.push("/badges")}>
                     <Trophy className="mr-1.5 size-4" />
                     Nishonlar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/rewards")}>
+                    <Gift className="mr-1.5 size-4" />
+                    Mukofotlar
                   </DropdownMenuItem>
                   <DropdownMenuItem variant="destructive" onClick={handleLogout}>
                     <LogOut className="mr-1.5 size-4" />

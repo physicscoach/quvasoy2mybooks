@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from apps.core.models import TimeStampedModel
 
 
 class Level(models.Model):
@@ -205,3 +206,63 @@ class PointTransaction(models.Model):
                 "orqali yoziladi - togridan-togri save() chaqirilmasin."
             )
         super().save(*args, **kwargs)
+
+
+class Reward(TimeStampedModel):
+    """Mukofot do'koni buyumi — ballga (tanga) almashtiriladi. Hammasi raqamli."""
+
+    class RewardType(models.TextChoices):
+        FRAME = "frame", "Profil ramkasi"
+        TITLE = "title", "Unvon"
+        CERTIFICATE = "certificate", "Sertifikat"
+        DOWNLOAD_BOOST = "download_boost", "Yuklash limiti +"
+        OTHER = "other", "Boshqa"
+
+    code = models.CharField("Kod", max_length=48, unique=True)
+    name = models.CharField("Nomi", max_length=150)
+    description = models.TextField("Tavsif", blank=True, default="")
+    icon = models.CharField("Ikonka", max_length=16, blank=True, default="")
+    reward_type = models.CharField("Turi", max_length=20, choices=RewardType.choices, default=RewardType.OTHER)
+    cost_points = models.PositiveIntegerField("Narxi (tanga)")
+    stock = models.IntegerField("Zaxira (NULL=cheksiz)", null=True, blank=True)
+    is_active = models.BooleanField("Faolmi", default=True)
+    sort_order = models.SmallIntegerField("Tartib", default=0)
+
+    class Meta:
+        verbose_name = "Mukofot"
+        verbose_name_plural = "Mukofotlar"
+        ordering = ["sort_order", "cost_points"]
+        constraints = [
+            models.CheckConstraint(check=models.Q(cost_points__gt=0), name="reward_cost_positive"),
+            models.CheckConstraint(check=models.Q(stock__isnull=True) | models.Q(stock__gte=0), name="reward_stock_nonneg"),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.cost_points})"
+
+
+class RewardRedemption(TimeStampedModel):
+    class Status(models.TextChoices):
+        PENDING = "pending", "Kutilmoqda"
+        FULFILLED = "fulfilled", "Bajarildi"
+        CANCELLED = "cancelled", "Bekor qilindi"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name="Foydalanuvchi",
+        on_delete=models.CASCADE, related_name="redemptions",
+    )
+    reward = models.ForeignKey(Reward, verbose_name="Mukofot", on_delete=models.PROTECT, related_name="redemptions")
+    spent_points = models.PositiveIntegerField("Sarflangan tanga")
+    status = models.CharField("Holati", max_length=16, choices=Status.choices, default=Status.PENDING)
+    transaction = models.ForeignKey(
+        "gamification.PointTransaction", verbose_name="Tranzaksiya",
+        on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+    )
+
+    class Meta:
+        verbose_name = "Mukofot xaridi"
+        verbose_name_plural = "Mukofot xaridlari"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} — {self.reward}"

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
-from .models import Badge, GamificationEvent, GamificationRule, Level, PointTransaction, UserBadge
+from .models import Badge, GamificationEvent, GamificationRule, Level, PointTransaction, UserBadge, Reward, RewardRedemption
 
 
 @admin.register(Level)
@@ -54,3 +54,18 @@ class PointTransactionAdmin(ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Reward)
+class RewardAdmin(ModelAdmin):
+    list_display = ("name", "reward_type", "cost_points", "stock", "is_active")
+    list_filter = ("reward_type", "is_active")
+    search_fields = ("name", "code")
+
+
+@admin.register(RewardRedemption)
+class RewardRedemptionAdmin(ModelAdmin):
+    list_display = ("user", "reward", "spent_points", "status", "created_at")
+    list_filter = ("status",)
+    search_fields = ("user__username", "reward__name")
+    readonly_fields = ("user", "reward", "spent_points", "transaction", "created_at")

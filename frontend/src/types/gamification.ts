@@ -38,3 +38,13 @@ export interface Paginated<T> {
   previous: string | null;
   results: T[];
 }
+
+export interface Reward {
+  code: string;
+  name: string;
+  description: string;
+  icon: string;
+  reward_type: string;
+  cost_points: number;
+  stock: number | null;
+}

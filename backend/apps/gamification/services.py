@@ -132,3 +132,54 @@ def reverse_user_points(user, reason: str = "anti_cheat_reversal", description: 
         stats.points_lifetime = max(stats.points_lifetime - to_reverse, 0)
         stats.save(update_fields=["points_balance", "points_lifetime"])
     return to_reverse
+
+
+class InsufficientPoints(Exception):
+    pass
+
+
+class OutOfStock(Exception):
+    pass
+
+
+def spend_points(user, reward):
+    """Mukofot sotib oladi: balans va zaxira tekshiriladi (atomik).
+
+    XP (points_lifetime) ga TEGMAYDI — faqat tanga (points_balance) sarflanadi,
+    shuning uchun daraja/reyting tushmaydi.
+    """
+    from django.db.models import F
+
+    from apps.accounts.models import ReaderStats
+
+    from .models import Reward, RewardRedemption
+
+    with transaction.atomic():
+        stats = ReaderStats.objects.select_for_update().get(user=user)
+        if stats.points_balance < reward.cost_points:
+            raise InsufficientPoints("Tanga yetarli emas.")
+
+        # zaxira (agar cheklangan bo'lsa) atomik kamaytiriladi
+        if reward.stock is not None:
+            updated = Reward.objects.filter(pk=reward.pk, stock__gt=0).update(stock=F("stock") - 1)
+            if updated == 0:
+                raise OutOfStock("Mukofot tugagan.")
+
+        txn = PointTransaction(
+            user=user,
+            delta=-reward.cost_points,
+            balance_after=stats.points_balance - reward.cost_points,
+            reason_code="reward_redeem",
+            description=f"Mukofot: {reward.name}",
+            idempotency_key=f"redeem:{user.id}:{reward.id}:{timezone.now().timestamp()}",
+        )
+        txn._allow_save = True
+        txn.save()
+
+        stats.points_balance = F("points_balance") - reward.cost_points
+        stats.save(update_fields=["points_balance"])
+
+        redemption = RewardRedemption.objects.create(
+            user=user, reward=reward, spent_points=reward.cost_points, transaction=txn,
+        )
+    return redemption

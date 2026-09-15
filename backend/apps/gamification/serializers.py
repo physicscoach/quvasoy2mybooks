@@ -27,3 +27,21 @@ class PointTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointTransaction
         fields = ("public_id", "delta", "balance_after", "reason_code", "description", "created_at")
+
+
+class RewardSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Reward
+
+        model = Reward
+        fields = ("code", "name", "description", "icon", "reward_type", "cost_points", "stock")
+
+
+class RedemptionSerializer(serializers.ModelSerializer):
+    reward_name = serializers.CharField(source="reward.name", read_only=True)
+
+    class Meta:
+        from .models import RewardRedemption
+
+        model = RewardRedemption
+        fields = ("public_id", "reward_name", "spent_points", "status", "created_at")

@@ -127,3 +127,44 @@ class BadgeStreakLevelTests(TestCase):
             )
         streak = update_streak(self.user)
         self.assertEqual(streak, 3)
+
+
+class RewardTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username="xaridor", password="x", role="reader")
+
+    def _reward(self, cost=100, stock=None):
+        from apps.gamification.models import Reward
+        return Reward.objects.create(code=f"r{cost}_{stock}", name="Test mukofot", cost_points=cost, stock=stock)
+
+    def test_spend_deducts_balance_only(self):
+        from apps.gamification.services import spend_points
+        stats = ReaderStats.objects.create(user=self.user, points_balance=200, points_lifetime=200)
+        reward = self._reward(cost=100)
+        spend_points(self.user, reward)
+        stats.refresh_from_db()
+        self.assertEqual(stats.points_balance, 100)
+        self.assertEqual(stats.points_lifetime, 200)  # XP tegmaydi (daraja tushmaydi)
+
+    def test_insufficient_points(self):
+        from apps.gamification.services import InsufficientPoints, spend_points
+        ReaderStats.objects.create(user=self.user, points_balance=50, points_lifetime=50)
+        reward = self._reward(cost=100)
+        with self.assertRaises(InsufficientPoints):
+            spend_points(self.user, reward)
+
+    def test_out_of_stock(self):
+        from apps.gamification.services import OutOfStock, spend_points
+        ReaderStats.objects.create(user=self.user, points_balance=500, points_lifetime=500)
+        reward = self._reward(cost=100, stock=0)
+        with self.assertRaises(OutOfStock):
+            spend_points(self.user, reward)
+
+    def test_redemption_recorded(self):
+        from apps.gamification.models import RewardRedemption
+        from apps.gamification.services import spend_points
+        ReaderStats.objects.create(user=self.user, points_balance=300, points_lifetime=300)
+        reward = self._reward(cost=150)
+        spend_points(self.user, reward)
+        self.assertTrue(RewardRedemption.objects.filter(user=self.user, reward=reward, spent_points=150).exists())

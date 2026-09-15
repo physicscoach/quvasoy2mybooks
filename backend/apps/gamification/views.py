@@ -1,4 +1,5 @@
 from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from apps.accounts.models import ReaderStats
@@ -60,3 +61,38 @@ class LeaderboardView(ListAPIView):
             for s in top
         ]
         return Response(data)
+
+
+class RewardListView(ListAPIView):
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    def get_serializer_class(self):
+        from .serializers import RewardSerializer
+        return RewardSerializer
+
+    def get_queryset(self):
+        from .models import Reward
+        return Reward.objects.filter(is_active=True).order_by("sort_order", "cost_points")
+
+
+class RedeemView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, code):
+        from django.shortcuts import get_object_or_404
+        from rest_framework import status
+        from rest_framework.response import Response
+
+        from .models import Reward
+        from .serializers import RedemptionSerializer
+        from .services import InsufficientPoints, OutOfStock, spend_points
+
+        reward = get_object_or_404(Reward, code=code, is_active=True)
+        try:
+            redemption = spend_points(request.user, reward)
+        except InsufficientPoints:
+            return Response({"detail": "Tanga yetarli emas."}, status=status.HTTP_400_BAD_REQUEST)
+        except OutOfStock:
+            return Response({"detail": "Mukofot tugagan."}, status=status.HTTP_409_CONFLICT)
+        return Response(RedemptionSerializer(redemption).data, status=status.HTTP_201_CREATED)
