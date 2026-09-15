@@ -226,17 +226,17 @@ o'qishni to'xtatib qayta kirilsa o'sha sahifadan davom etadi · telefonda ishlay
 Bog'liq: M3 · Agent: `django-drf-backend`
 *Boshlang'ich kod yozilgan — tekshirish va to'ldirish kerak*
 
-- [ ] `ReadingSession` — partial UNIQUE: **bir foydalanuvchida bitta aktiv seans**
-- [ ] `ReadingHeartbeat` — `UNIQUE(session, client_seq)`
-- [ ] `ReadingPageCredit` — `UNIQUE(user, book, page)`
-- [ ] `ReadingProgress`, `DailyActivity`
-- [ ] Sessiya ochish — eskisini `superseded` qilib yopadi (`select_for_update`)
-- [ ] **Batch heartbeat endpoint** — massiv qabul qiladi, `bulk_create(ignore_conflicts)`,
+- [x] `ReadingSession` — partial UNIQUE: **bir foydalanuvchida bitta aktiv seans**
+- [x] `ReadingHeartbeat` — `UNIQUE(session, client_seq)`
+- [x] `ReadingPageCredit` — `UNIQUE(user, book, page)`
+- [x] `ReadingProgress`, `DailyActivity`
+- [x] Sessiya ochish — eskisini `superseded` qilib yopadi (`select_for_update`)
+- [x] **Batch heartbeat endpoint** — massiv qabul qiladi, `bulk_create(ignore_conflicts)`,
       maqsad ~10ms, **ball hisoblamaydi**
-- [ ] `validation.py` — reja 6.3-dagi **11 ta tekshiruvning hammasi**
-- [ ] `flush_dirty_sessions()` (har 60s) + `close_stale_sessions()` (har 2 daq)
-- [ ] django-q2 `Schedule` yozuvlari yaratildi
-- [ ] Testlar: soxta `active_seconds`, tez varaqlash, ikki tab, replay, sakrash
+- [x] `validation.py` — reja 6.3-dagi **11 ta tekshiruvning hammasi**
+- [x] `flush_dirty_sessions()` (har 60s) + `close_stale_sessions()` (har 2 daq)
+- [x] django-q2 `Schedule` yozuvlari yaratildi
+- [x] Testlar: soxta `active_seconds`, tez varaqlash, ikki tab, replay, sakrash
 
 **Tekshiruv:** soxta telemetriya yuborib ko'rish — ball berilmasligi kerak ·
 haqiqiy o'qish sahifa krediti beradi · ikkinchi tab birinchisini yopadi.
@@ -272,17 +272,17 @@ yo'qolmasligi kerak · tabni yopganda oxirgi bufer yetib borishi kerak.
 Bog'liq: M9 · Agent: `django-drf-backend`
 *Boshlang'ich kod yozilgan — tekshirish kerak*
 
-- [ ] `Level`, `GamificationRule`, `GamificationEvent` (navbat)
-- [ ] **`PointTransaction`** — append-only ledger, `idempotency_key` UNIQUE,
+- [x] `Level`, `GamificationRule`, `GamificationEvent` (navbat)
+- [x] **`PointTransaction`** — append-only ledger, `idempotency_key` UNIQUE,
       `balance_after`, `reverses_id`
-- [ ] `award_points()` servisi — `atomic()` + `select_for_update`, cap/cooldown,
+- [x] `award_points()` servisi — `atomic()` + `select_for_update`, cap/cooldown,
       `IntegrityError` tutilsa **muvaffaqiyat** deb qaytariladi
-- [ ] `PointTransaction.save()` override — servis tashqarisida `RuntimeError`
-- [ ] `process_events()` vazifasi
-- [ ] `UNIQUE(user, book)` — `BOOK_COMPLETED` abadiy bir marta
-- [ ] Ball qoidalari va darajalar data-migratsiyada seed qilingan (7.1/7.3)
-- [ ] `recompute(user, from_date)` — xom telemetriyadan qayta hisoblash
-- [ ] Kunlik yarashtirish: `SUM(ledger) != balance` bo'lsa ogohlantirish
+- [x] `PointTransaction.save()` override — servis tashqarisida `RuntimeError`
+- [x] `process_events()` vazifasi
+- [x] `UNIQUE(user, book)` — `BOOK_COMPLETED` abadiy bir marta
+- [x] Ball qoidalari va darajalar data-migratsiyada seed qilingan (7.1/7.3)
+- [x] `recompute(user, from_date)` — xom telemetriyadan qayta hisoblash
+- [x] Kunlik yarashtirish: `SUM(ledger) != balance` bo'lsa ogohlantirish
 
 **Tekshiruv:** bitta kitobni ikki marta "tugatish" — ball bir marta beriladi ·
 ledger yig'indisi balansga teng · qoida o'zgartirilib qayta hisoblansa to'g'ri
