@@ -26,6 +26,16 @@ const PdfReader = dynamic(() => import("@/components/reader/PdfReader"), {
   ),
 });
 
+const EpubReader = dynamic(() => import("@/components/reader/EpubReader"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center gap-2 text-muted-foreground">
+      <Loader2 className="size-5 animate-spin" />
+      O&apos;quvchi yuklanmoqda...
+    </div>
+  ),
+});
+
 // Tiket ~120s amal qiladi; muddati tugashiga ~30s qolganda fonda yangilaymiz.
 const TICKET_TTL_MS = 120_000;
 const TICKET_REFRESH_BEFORE_MS = 30_000;
@@ -45,6 +55,7 @@ export default function ReadPage() {
 
   const bookId = params.bookId;
   const fileId = searchParams.get("file");
+  const format = searchParams.get("format");
 
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -175,7 +186,14 @@ export default function ReadPage() {
 
       <div className="min-h-0 flex-1">
         {isReady && fileUrl ? (
-          <PdfReader fileUrl={fileUrl} initialPage={startPage} onPageChange={handlePageChange} />
+          format === "epub" ? (
+            <EpubReader
+              fileUrl={fileUrl}
+              onLocationChange={(_cfi, pct) => handlePageChange(Math.max(1, pct))}
+            />
+          ) : (
+            <PdfReader fileUrl={fileUrl} initialPage={startPage} onPageChange={handlePageChange} />
+          )
         ) : (
           <div className="flex h-full w-full items-center justify-center gap-2 text-muted-foreground">
             <Loader2 className="size-5 animate-spin" />

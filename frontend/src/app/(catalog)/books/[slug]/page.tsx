@@ -71,11 +71,13 @@ export default async function BookDetailPage({ params }: BookPageProps) {
   const rating = Number(book.rating_avg);
   const isDownloadable = book.is_downloadable;
   const primaryFile =
-    book.files.find((f) => f.format === "pdf" && f.is_primary) ??
-    book.files.find((f) => f.format === "pdf");
+    book.files.find((f) => f.is_primary) ??
+    book.files.find((f) => f.format === "pdf") ??
+    book.files[0];
   const readHref = primaryFile
-    ? `/read/${book.public_id}?file=${primaryFile.public_id}`
+    ? `/read/${book.public_id}?file=${primaryFile.public_id}&format=${primaryFile.format}`
     : null;
+  const downloadFile = book.files.find((f) => f.is_downloadable && f.format === "pdf") ?? primaryFile;
 
   const reviews = await serverApiFetch<
     { public_id: string; username: string; rating: number; body: string; created_at: string }[]
@@ -115,7 +117,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
             O&apos;qish
           </Button>
           {isDownloadable && primaryFile && (
-            <DownloadButton bookPublicId={book.public_id} filePublicId={primaryFile.public_id} />
+            <DownloadButton bookPublicId={book.public_id} filePublicId={downloadFile.public_id} />
           )}
         </div>
       </div>

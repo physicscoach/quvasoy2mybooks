@@ -344,11 +344,11 @@ mobil'da buzilmaydi.
 ### M15 — EPUB reader · ~20 soat
 Bog'liq: M8 · Agent: `react-frontend`
 
-- [ ] `epub.js` integratsiyasi, `ReaderEngine` interfeysi ustida
-- [ ] CFI (lokatsiya) bilan progress saqlash
-- [ ] Shrift o'lchami, mavzu, sahifalash rejimi
-- [ ] Telemetriya: sahifa o'rniga "virtual sahifa" (so'z soni asosida)
-- [ ] `MIN_PAGE_DWELL` EPUB uchun so'z soniga qarab hisoblanadi
+- [x] `epub.js` integratsiyasi, `ReaderEngine` interfeysi ustida
+- [x] CFI (lokatsiya) bilan progress saqlash
+- [x] Shrift o'lchami, mavzu, sahifalash rejimi
+- [x] Telemetriya: sahifa o'rniga "virtual sahifa" (so'z soni asosida)
+- [x] `MIN_PAGE_DWELL` EPUB uchun so'z soniga qarab hisoblanadi
 
 **Tekshiruv:** EPUB ochiladi, progress saqlanadi, ball PDF bilan bir xil mantiqda.
 
