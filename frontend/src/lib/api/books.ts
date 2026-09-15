@@ -5,6 +5,7 @@ import type { BookDetail, BookSummary, ReadTicket } from "@/types/book";
 export type Fetcher = <T = unknown>(path: string, init?: RequestInit) => Promise<T>;
 
 export interface BookListParams {
+  [key: string]: string | number | boolean | undefined;
   search?: string;
   category?: string;
   page?: number;

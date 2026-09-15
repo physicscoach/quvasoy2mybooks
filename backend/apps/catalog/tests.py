@@ -42,7 +42,7 @@ class CatalogApiTests(TestCase):
         self.assertNotIn("Qoralama", titles)
 
     def test_draft_detail_404_for_anonymous(self):
-        url = reverse("book-detail", kwargs={"public_id": self.draft.public_id})
+        url = reverse("book-detail", kwargs={"slug": self.draft.slug})
         self.assertEqual(self.client.get(url).status_code, 404)
 
     def test_search(self):

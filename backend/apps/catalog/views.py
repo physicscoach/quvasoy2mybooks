@@ -12,7 +12,7 @@ class BookViewSet(viewsets.ReadOnlyModelViewSet):
     """Katalog: royxat + detal. Qidiruv `search`, janr/til filtri."""
 
     permission_classes = [AllowAny]
-    lookup_field = "public_id"
+    lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = {
         "language": ["exact"],
@@ -25,12 +25,11 @@ class BookViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         qs = Book.objects.filter(status=Book.Status.PUBLISHED)
-        qs = qs.select_related().prefetch_related(
+        qs = qs.prefetch_related(
+            "files",
             Prefetch("book_authors", queryset=BookAuthor.objects.select_related("author")),
             Prefetch("book_categories", queryset=BookCategory.objects.select_related("category")),
         )
-        if self.action == "retrieve":
-            qs = qs.prefetch_related("files")
         return qs
 
     def get_serializer_class(self):
