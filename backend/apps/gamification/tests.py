@@ -208,7 +208,7 @@ class ChallengeTests(TestCase):
         from apps.reading.models import ReadingProgress
         from django.utils import timezone
 
-        ch = self._challenge(target=1)
+        self._challenge(target=1)
         b = Book.objects.create(title="B", page_count=10, status="published")
         ReadingProgress.objects.create(user=self.user, book=b, status="completed", completed_at=timezone.now(), max_page_reached=10)
         update_challenges(self.user)

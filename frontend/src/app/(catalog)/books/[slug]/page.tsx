@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { ApiError } from "@/types/api";
 import { formatNumberUz } from "@/lib/utils";
 import { ReviewForm } from "@/components/catalog/ReviewForm";
+import { DownloadButton } from "@/components/catalog/DownloadButton";
 
 const DIFFICULTY_LABELS: Record<string, string> = {
   easy: "Oson",
@@ -113,17 +114,8 @@ export default async function BookDetailPage({ params }: BookPageProps) {
             <BookOpen className="mr-1.5 size-4" />
             O&apos;qish
           </Button>
-          {isDownloadable && (
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full"
-              disabled
-              title="Yuklab olish tez orada qo'shiladi"
-            >
-              <Download className="mr-1.5 size-4" />
-              Yuklab olish
-            </Button>
+          {isDownloadable && primaryFile && (
+            <DownloadButton bookPublicId={book.public_id} filePublicId={primaryFile.public_id} />
           )}
         </div>
       </div>

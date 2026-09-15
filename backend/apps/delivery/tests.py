@@ -72,3 +72,38 @@ class CanDownloadTests(TestCase):
         file = _make_book_file()
         decision = can_download(AnonymousUser(), file)
         self.assertFalse(decision.allowed)
+
+
+class WatermarkTests(TestCase):
+    def test_watermark_creates_and_caches(self):
+        import fitz
+        from django.core.files.base import ContentFile
+
+        from apps.accounts.models import User
+        from apps.catalog.models import Book, BookFile
+        from apps.delivery.watermark import watermarked_pdf
+
+        user = User.objects.create_user(username="yuklovchi", password="x", role="reader", first_name="Ali")
+        book = Book.objects.create(title="WM kitob", status=Book.Status.PUBLISHED, page_count=3)
+        doc = fitz.open()
+        for i in range(3):
+            doc.new_page().insert_text((72, 72), f"Sahifa {i+1}")
+        pdf_bytes = doc.tobytes()
+        doc.close()
+        bf = BookFile.objects.create(book=book, format="pdf", processing_status="ready")
+        bf.file.save("wm.pdf", ContentFile(pdf_bytes), save=True)
+        bf.sha256 = "a" * 64
+        bf.save(update_fields=["sha256"])
+
+        path1 = watermarked_pdf(bf, user)
+        self.assertTrue(path1.exists())
+        # watermark faylida foydalanuvchi izi bor (matn ajratib tekshiramiz)
+        import fitz as fitz2
+        wm_doc = fitz2.open(str(path1))
+        text = wm_doc.load_page(0).get_text()
+        wm_doc.close()
+        self.assertIn("Ali", text)  # foydalanuvchi ismi footer'da
+
+        # ikkinchi chaqiruv keshdan (bir xil yo'l)
+        path2 = watermarked_pdf(bf, user)
+        self.assertEqual(path1, path2)

@@ -115,6 +115,15 @@ class FileDeliveryView(APIView):
 
         content_type = "application/pdf" if file.format == "pdf" else "application/epub+zip"
 
+        # Yuklab olish + PDF -> watermark (foydalanuvchi izi)
+        serve_path = None
+        if payload.mode == "download" and file.format == "pdf":
+            try:
+                from .watermark import watermarked_pdf
+                serve_path = watermarked_pdf(file, user)
+            except Exception:  # noqa: BLE001 - watermark xatosi yuklashni to'smasin
+                serve_path = None
+
         # DEV: Caddy yo'q, X-Accel-Redirect'ni bajaruvchi yo'q -> Django faylni o'zi beradi
         # (Range qo'llab-quvvatlanadi). PROD: X-Accel-Redirect, baytlarni Caddy uzatadi.
         from django.conf import settings as dj_settings
@@ -122,13 +131,18 @@ class FileDeliveryView(APIView):
         if dj_settings.DEBUG:
             from django.http import FileResponse
 
-            response = FileResponse(file.file.open("rb"), content_type=content_type)
+            fh = open(serve_path, "rb") if serve_path else file.file.open("rb")
+            response = FileResponse(fh, content_type=content_type)
             if payload.mode == "download":
                 response["Content-Disposition"] = f'attachment; filename="{os.path.basename(file.file.name)}"'
             return response
 
         response = HttpResponse(status=200)
-        response["X-Accel-Redirect"] = _internal_accel_path(file)
+        if serve_path:
+            rel = str(serve_path).replace(str(__import__("django.conf", fromlist=["settings"]).settings.BOOKS_ROOT), "").replace("\\", "/").lstrip("/")
+            response["X-Accel-Redirect"] = f"{settings.INTERNAL_FILES_PREFIX.rstrip('/')}/{rel}"
+        else:
+            response["X-Accel-Redirect"] = _internal_accel_path(file)
         response["Content-Type"] = content_type
         if payload.mode == "download":
             response["Content-Disposition"] = f'attachment; filename="{os.path.basename(file.file.name)}"'

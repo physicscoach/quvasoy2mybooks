@@ -390,11 +390,11 @@ Bog'liq: M12
 ### M19 — Watermark · ~12 soat
 Bog'liq: M5
 
-- [ ] PyMuPDF bilan PDF watermark (ism + ID + sana + domen)
-- [ ] Talab bo'yicha generatsiya, `202 Accepted` + poll
-- [ ] Kesh: `/data/derived/wm/`, **5 GB LRU limit + cron tozalash**
-- [ ] Nusxa ID `DownloadLog` ga bog'lanadi (manbani aniqlash uchun)
-- [ ] EPUB: faqat metadata izi (himoya emas, iz)
+- [x] PyMuPDF bilan PDF watermark (ism + ID + sana + domen)
+- [x] Talab bo'yicha generatsiya, `202 Accepted` + poll
+- [x] Kesh: `/data/derived/wm/`, **5 GB LRU limit + cron tozalash**
+- [x] Nusxa ID `DownloadLog` ga bog'lanadi (manbani aniqlash uchun)
+- [x] EPUB: faqat metadata izi (himoya emas, iz)
 
 **Tekshiruv:** yuklangan PDF'da ism ko'rinadi · kesh limiti oshsa eskisi o'chadi.
 
