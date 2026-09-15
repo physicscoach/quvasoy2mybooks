@@ -1,6 +1,7 @@
 import { apiFetch } from "@/lib/api/client";
 import type {
   Reward,
+  Challenge,
   Badge,
   LeaderboardEntry,
   Paginated,
@@ -34,4 +35,8 @@ export async function fetchRewards(fetcher: Fetcher = apiFetch): Promise<Reward[
 
 export async function redeemReward(code: string): Promise<void> {
   await apiFetch(`/gamification/rewards/${code}/redeem`, { method: "POST" });
+}
+
+export async function fetchChallenges(fetcher: Fetcher = apiFetch): Promise<Challenge[]> {
+  return fetcher<Challenge[]>("/gamification/challenges");
 }

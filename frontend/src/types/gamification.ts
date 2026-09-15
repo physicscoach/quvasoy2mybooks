@@ -48,3 +48,16 @@ export interface Reward {
   cost_points: number;
   stock: number | null;
 }
+
+export interface Challenge {
+  code: string;
+  name: string;
+  description: string;
+  icon: string;
+  challenge_type: string;
+  target: number;
+  points_reward: number;
+  end_date: string;
+  current: number;
+  completed: boolean;
+}

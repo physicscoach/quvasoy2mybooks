@@ -24,9 +24,10 @@ def process_events(batch_size: int = 200):
     for event in events:
         try:
             _process_one(event)
-            from .badges import check_and_award_badges, update_level
+            from .badges import check_and_award_badges, update_challenges, update_level
             update_level(event.user)
             check_and_award_badges(event.user)
+            update_challenges(event.user)
             event.status = GamificationEvent.Status.PROCESSED
             event.processed_at = timezone.now()
             event.save(update_fields=["status", "processed_at"])

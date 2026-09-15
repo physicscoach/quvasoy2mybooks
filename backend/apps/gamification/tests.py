@@ -168,3 +168,56 @@ class RewardTests(TestCase):
         reward = self._reward(cost=150)
         spend_points(self.user, reward)
         self.assertTrue(RewardRedemption.objects.filter(user=self.user, reward=reward, spent_points=150).exists())
+
+
+class ChallengeTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username="chuser", password="x", role="reader")
+
+    def _challenge(self, target=2):
+        from datetime import date, timedelta
+        from apps.gamification.models import Challenge
+        today = date.today()
+        return Challenge.objects.create(
+            code=f"ch{target}", name="Test challenge", challenge_type="books_completed",
+            target=target, points_reward=50, start_date=today - timedelta(days=1),
+            end_date=today + timedelta(days=30), is_active=True,
+        )
+
+    def test_progress_updates(self):
+        from apps.gamification.badges import update_challenges
+        from apps.gamification.models import UserChallengeProgress
+        from apps.catalog.models import Book
+        from apps.reading.models import ReadingProgress
+        from django.utils import timezone
+
+        ch = self._challenge(target=2)
+        for i in range(2):
+            b = Book.objects.create(title=f"B{i}", page_count=10, status="published")
+            ReadingProgress.objects.create(user=self.user, book=b, status="completed", completed_at=timezone.now(), max_page_reached=10)
+        update_challenges(self.user)
+        prog = UserChallengeProgress.objects.get(user=self.user, challenge=ch)
+        self.assertEqual(prog.current, 2)
+        self.assertIsNotNone(prog.completed_at)
+
+    def test_completion_awards_points(self):
+        from apps.gamification.badges import update_challenges
+        from apps.gamification.models import PointTransaction
+        from apps.catalog.models import Book
+        from apps.reading.models import ReadingProgress
+        from django.utils import timezone
+
+        ch = self._challenge(target=1)
+        b = Book.objects.create(title="B", page_count=10, status="published")
+        ReadingProgress.objects.create(user=self.user, book=b, status="completed", completed_at=timezone.now(), max_page_reached=10)
+        update_challenges(self.user)
+        # 50 ball berilgan (points_override)
+        self.assertTrue(PointTransaction.objects.filter(user=self.user, reason_code="challenge_completed", delta=50).exists())
+
+    def test_challenge_list_api(self):
+        self._challenge()
+        resp = self.client.get("/api/v1/gamification/challenges")
+        self.assertEqual(resp.status_code, 200)
+        codes = [c["code"] for c in resp.data]
+        self.assertIn("ch2", codes)  # o'z challenge'im ro'yxatda

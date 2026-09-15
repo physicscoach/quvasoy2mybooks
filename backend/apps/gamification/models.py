@@ -266,3 +266,56 @@ class RewardRedemption(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user} — {self.reward}"
+
+
+class Challenge(TimeStampedModel):
+    """Vaqtli maqsad: masalan 'oyda 5 kitob o'qing'. Bajarilsa ball beriladi."""
+
+    class ChallengeType(models.TextChoices):
+        BOOKS_COMPLETED = "books_completed", "Kitob tugatish"
+        PAGES_READ = "pages_read", "Sahifa o'qish"
+        STREAK_DAYS = "streak_days", "Ketma-ket kunlar"
+
+    code = models.CharField("Kod", max_length=48, unique=True)
+    name = models.CharField("Nomi", max_length=150)
+    description = models.TextField("Tavsif", blank=True, default="")
+    icon = models.CharField("Ikonka", max_length=16, blank=True, default="")
+    challenge_type = models.CharField("Turi", max_length=20, choices=ChallengeType.choices)
+    target = models.PositiveIntegerField("Maqsad (son)")
+    points_reward = models.PositiveIntegerField("Mukofot ball")
+    start_date = models.DateField("Boshlanish sanasi")
+    end_date = models.DateField("Tugash sanasi")
+    is_active = models.BooleanField("Faolmi", default=True)
+
+    class Meta:
+        verbose_name = "Challenge"
+        verbose_name_plural = "Challenge'lar"
+        ordering = ["-start_date"]
+        constraints = [
+            models.CheckConstraint(check=models.Q(end_date__gte=models.F("start_date")), name="challenge_dates_valid"),
+            models.CheckConstraint(check=models.Q(target__gt=0), name="challenge_target_positive"),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class UserChallengeProgress(TimeStampedModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name="Foydalanuvchi",
+        on_delete=models.CASCADE, related_name="challenge_progress",
+    )
+    challenge = models.ForeignKey(Challenge, verbose_name="Challenge", on_delete=models.CASCADE, related_name="participants")
+    current = models.PositiveIntegerField("Joriy natija", default=0)
+    completed_at = models.DateTimeField("Bajarilgan vaqti", null=True, blank=True)
+    awarded_at = models.DateTimeField("Ball berilgan vaqti", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Challenge natijasi"
+        verbose_name_plural = "Challenge natijalari"
+        constraints = [
+            models.UniqueConstraint(fields=["user", "challenge"], name="uniq_user_challenge"),
+        ]
+
+    def __str__(self):
+        return f"{self.user} — {self.challenge} ({self.current})"

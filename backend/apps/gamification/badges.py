@@ -108,3 +108,46 @@ def update_level(user):
         stats.save(update_fields=["level"])
         return level.name
     return None
+
+
+def update_challenges(user):
+    """Faol challenge'lar bo'yicha foydalanuvchi progressini yangilaydi va bajarilsa ball beradi."""
+    from django.utils import timezone
+
+    from apps.reading.models import DailyActivity, ReadingProgress
+
+    from .models import Challenge, UserChallengeProgress
+    from .services import award_points
+
+    today = timezone.localdate()
+    active = Challenge.objects.filter(is_active=True, start_date__lte=today, end_date__gte=today)
+
+    for ch in active:
+        if ch.challenge_type == Challenge.ChallengeType.BOOKS_COMPLETED:
+            current = ReadingProgress.objects.filter(
+                user=user, status="completed", completed_at__date__gte=ch.start_date,
+            ).count()
+        elif ch.challenge_type == Challenge.ChallengeType.PAGES_READ:
+            agg = DailyActivity.objects.filter(
+                user=user, activity_date__gte=ch.start_date, activity_date__lte=ch.end_date,
+            ).aggregate(total=__import__("django.db.models", fromlist=["Sum"]).Sum("pages_read"))
+            current = agg["total"] or 0
+        elif ch.challenge_type == Challenge.ChallengeType.STREAK_DAYS:
+            from apps.accounts.models import ReaderStats
+            rs = ReaderStats.objects.filter(user=user).first()
+            current = rs.longest_streak if rs else 0
+        else:
+            continue
+
+        prog, _ = UserChallengeProgress.objects.get_or_create(user=user, challenge=ch)
+        prog.current = current
+        if current >= ch.target and prog.completed_at is None:
+            prog.completed_at = timezone.now()
+            prog.awarded_at = timezone.now()
+            prog.save(update_fields=["current", "completed_at", "awarded_at"])
+            award_points(
+                user, "challenge_completed", f"challenge:{ch.id}:{user.id}",
+                description=f"Challenge: {ch.name}", points_override=ch.points_reward,
+            )
+        else:
+            prog.save(update_fields=["current"])

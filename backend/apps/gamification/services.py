@@ -27,6 +27,7 @@ def award_points(
     book=None,
     badge=None,
     description: str = "",
+    points_override: int | None = None,
 ) -> AwardResult:
     """Ballni ledgerga yozadi.
 
@@ -65,7 +66,7 @@ def award_points(
                 if awarded_today >= rule.daily_cap_points:
                     return AwardResult(False, reason="Kunlik ball chegarasi tugagan.")
 
-            delta = rule.points
+            delta = points_override if points_override is not None else rule.points
             new_balance = stats.points_balance + delta
             new_lifetime = stats.points_lifetime + delta if delta > 0 else stats.points_lifetime
             if new_balance < 0:

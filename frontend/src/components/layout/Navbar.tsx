@@ -21,6 +21,7 @@ import { toast } from "sonner";
 const navLinks = [
   { href: "/books", label: "Katalog" },
   { href: "/leaderboard", label: "Reyting" },
+  { href: "/challenges", label: "Challenge" },
 ];
 
 export function Navbar() {

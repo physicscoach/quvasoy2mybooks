@@ -369,10 +369,10 @@ Bog'liq: M11 · Agent: `django-drf-backend` + `react-frontend`
 ### M17 — Challenge'lar · ~16 soat
 Bog'liq: M12
 
-- [ ] `Challenge`, `UserChallengeProgress` modellari
-- [ ] Admin'da challenge yaratish (shartlar JSON bilan)
-- [ ] Progress hisoblash + tugaganda ball
-- [ ] Frontend: `/challenges` sahifasi, progress bar
+- [x] `Challenge`, `UserChallengeProgress` modellari
+- [x] Admin'da challenge yaratish (shartlar JSON bilan)
+- [x] Progress hisoblash + tugaganda ball
+- [x] Frontend: `/challenges` sahifasi, progress bar
 
 ---
 

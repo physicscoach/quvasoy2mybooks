@@ -96,3 +96,37 @@ class RedeemView(APIView):
         except OutOfStock:
             return Response({"detail": "Mukofot tugagan."}, status=status.HTTP_409_CONFLICT)
         return Response(RedemptionSerializer(redemption).data, status=status.HTTP_201_CREATED)
+
+
+class ChallengeListView(APIView):
+    """Faol challenge'lar + joriy foydalanuvchi progressi."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from django.utils import timezone
+        from rest_framework.response import Response
+
+        from .models import Challenge, UserChallengeProgress
+
+        today = timezone.localdate()
+        challenges = Challenge.objects.filter(is_active=True, end_date__gte=today).order_by("end_date")
+
+        progress_map = {}
+        if request.user.is_authenticated:
+            progress_map = {
+                p.challenge_id: p
+                for p in UserChallengeProgress.objects.filter(user=request.user, challenge__in=challenges)
+            }
+
+        data = []
+        for ch in challenges:
+            p = progress_map.get(ch.id)
+            data.append({
+                "code": ch.code, "name": ch.name, "description": ch.description, "icon": ch.icon,
+                "challenge_type": ch.challenge_type, "target": ch.target,
+                "points_reward": ch.points_reward, "end_date": ch.end_date,
+                "current": p.current if p else 0,
+                "completed": bool(p and p.completed_at),
+            })
+        return Response(data)

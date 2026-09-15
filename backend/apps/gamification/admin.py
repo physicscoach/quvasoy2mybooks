@@ -1,7 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
-from .models import Badge, GamificationEvent, GamificationRule, Level, PointTransaction, UserBadge, Reward, RewardRedemption
+from .models import Badge, GamificationEvent, GamificationRule, Level, PointTransaction, UserBadge, Reward, RewardRedemption, Challenge
 
 
 @admin.register(Level)
@@ -69,3 +69,10 @@ class RewardRedemptionAdmin(ModelAdmin):
     list_filter = ("status",)
     search_fields = ("user__username", "reward__name")
     readonly_fields = ("user", "reward", "spent_points", "transaction", "created_at")
+
+
+@admin.register(Challenge)
+class ChallengeAdmin(ModelAdmin):
+    list_display = ("name", "challenge_type", "target", "points_reward", "start_date", "end_date", "is_active")
+    list_filter = ("challenge_type", "is_active")
+    search_fields = ("name", "code")
