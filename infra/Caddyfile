@@ -3,7 +3,6 @@
 # baytlarni Caddy uzatadi (X-Accel-Redirect naqshi, intercept orqali).
 
 {
-	order intercept before reverse_proxy
 	email {$ACME_EMAIL}
 }
 
@@ -21,17 +20,15 @@
 	# --- Himoyalangan kitob fayllari ---
 	# Django tiketni tekshiradi va X-Accel-Redirect qaytaradi.
 	# Caddy faylni /data/books dan o'zi uzatadi (Range qo'llab-quvvatlanadi).
-	handle /files/* {
-		intercept {
+	handle /api/v1/files/* {
+		reverse_proxy web:8000 {
 			@accel header X-Accel-Redirect *
 			handle_response @accel {
 				root * /data
-				rewrite {resp.header.X-Accel-Redirect}
+				rewrite * {rp.header.X-Accel-Redirect}
 				method GET
 				file_server
 			}
-		}
-		reverse_proxy web:8000 {
 			header_up X-Real-IP {remote_host}
 			header_up X-Forwarded-Proto {scheme}
 		}
