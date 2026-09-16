@@ -123,6 +123,10 @@ class FileDeliveryView(APIView):
                 from .watermark import watermarked_pdf
                 serve_path = watermarked_pdf(file, user)
             except Exception:  # noqa: BLE001 - watermark xatosi yuklashni to'smasin
+                import logging
+                logging.getLogger(__name__).exception(
+                    "Watermark yaratib bo'lmadi: file=%s user=%s", file.pk, user.id
+                )
                 serve_path = None
 
         # DEV: Caddy yo'q, X-Accel-Redirect'ni bajaruvchi yo'q -> Django faylni o'zi beradi

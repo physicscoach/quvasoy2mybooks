@@ -421,13 +421,13 @@ Bog'liq: M14 · Agent: **`backend-code-reviewer`**
 
 > Serverga chiqishdan OLDIN. Bu qadam tashlab ketilmaydi.
 
-- [ ] Ruxsatlar: har endpoint uchun rol tekshiruvi (RBAC jadvali bo'yicha)
-- [ ] `cache: 'no-store'` barcha auth'li fetch'da
-- [ ] N+1 so'rovlar
-- [ ] Maxfiy kalitlar repoda yo'q, `NEXT_PUBLIC_` da maxfiy narsa yo'q
-- [ ] Fayl yetkazishda obyekt darajasidagi tekshiruv
-- [ ] Ledger'ga faqat servis orqali yozilishi
-- [ ] Rate limiting ishlayaptimi
+- [x] Ruxsatlar: har endpoint uchun rol tekshiruvi (RBAC jadvali bo'yicha)
+- [x] `cache: 'no-store'` barcha auth'li fetch'da
+- [x] N+1 so'rovlar
+- [x] Maxfiy kalitlar repoda yo'q, `NEXT_PUBLIC_` da maxfiy narsa yo'q
+- [x] Fayl yetkazishda obyekt darajasidagi tekshiruv
+- [x] Ledger'ga faqat servis orqali yozilishi
+- [x] Rate limiting ishlayaptimi
 
 ---
 

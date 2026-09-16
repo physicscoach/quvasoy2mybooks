@@ -2,6 +2,14 @@ import os
 
 from .base import *  # noqa: F403
 
+from django.core.exceptions import ImproperlyConfigured
+
+# Prod'da maxfiy kalitlar majburiy — default/bo'sh bilan ishga tushmaydi (M21 audit #2)
+if os.environ.get("SECRET_KEY", "") in ("", "dev-insecure-change-me"):
+    raise ImproperlyConfigured("SECRET_KEY muhit o'zgaruvchisi prod'da o'rnatilishi shart.")
+if not os.environ.get("POSTGRES_PASSWORD"):
+    raise ImproperlyConfigured("POSTGRES_PASSWORD prod'da o'rnatilishi shart.")
+
 DEBUG = False
 # Local Docker HTTP test uchun SSL_REDIRECT=0 qilinadi; prod'da default (1)
 SECURE_SSL_REDIRECT = os.environ.get("SSL_REDIRECT", "1") == "1"

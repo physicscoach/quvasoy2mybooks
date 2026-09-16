@@ -41,9 +41,12 @@ def flush_dirty_sessions(batch_size: int = 100):
     """Yangi heartbeat kelgan seanslarni validatsiya qiladi, PageCredit yozadi,
     ReadingProgress/DailyActivity'ni yangilaydi va gamifikatsiya hodisalarini chiqaradi.
     """
+    # FAQAT yopilgan seanslar kreditlanadi. Aktiv seans yopilgunicha (close yoki
+    # timeout) kutadi — aks holda har flush'da vaqt takror qo'shilib, anti-cheat
+    # vaqt tekshiruvi chetlab o'tilardi (M21 audit #1).
     dirty = (
         ReadingSession.objects.filter(validation_state=ReadingSession.ValidationState.PENDING)
-        .filter(heartbeat_count__gt=0)
+        .filter(heartbeat_count__gt=0, ended_at__isnull=False)
         .order_by("last_heartbeat_at")[:batch_size]
     )
 

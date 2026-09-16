@@ -11,9 +11,12 @@ ADMIN_PATH = os.environ.get("ADMIN_PATH", "admin")
 urlpatterns = [
     path(ADMIN_PATH + "/", admin.site.urls),
     path("api/v1/", include("config.api_urls")),
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
 ]
 
 if settings.DEBUG:
+    # API hujjatlari faqat dev'da ochiq (prod'da hujum yuzasini oshkor qilmaslik uchun)
+    urlpatterns += [
+        path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+        path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
+    ]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
