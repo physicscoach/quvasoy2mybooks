@@ -471,11 +471,11 @@ Bog'liq: M22
 ### M24 — PWA · ~15 soat
 Bog'liq: M23
 
-- [ ] `manifest.json` + ikonkalar
-- [ ] Service worker (`next-pwa` yoki qo'lda)
-- [ ] Offline: katalog keshi + o'qilgan sahifalar
-- [ ] "Bosh ekranga qo'shish" taklifi
-- [ ] Offline telemetriya navbati bilan integratsiya
+- [x] `manifest.json` + ikonkalar
+- [x] Service worker (`next-pwa` yoki qo'lda)
+- [x] Offline: katalog keshi + o'qilgan sahifalar
+- [x] "Bosh ekranga qo'shish" taklifi
+- [x] Offline telemetriya navbati bilan integratsiya
 
 > ### ✅ LOYIHA TUGADI
 
@@ -483,17 +483,17 @@ Bog'liq: M23
 
 ## Doimiy e'tibordagi masalalar
 
-- [ ] **Mualliflik huquqi** — har kitobga `rights_status` va manba hujjati.
+- [x] **Mualliflik huquqi** — har kitobga `rights_status` va manba hujjati.
       Bu loyihaning 1-xavfi va texnik emas, tashkiliy masala.
-- [ ] Takedown (kitobni olib tashlash) tartibi yozma holda tayyor
-- [ ] Kutubxonachi uchun yozma qoida: ruxsatsiz kitob yuklanmaydi
-- [ ] Disk to'lishini kuzatish (watermark keshi eng tez o'sadi)
-- [ ] Scope creep — yangi nishon/qoida **konfiguratsiya orqali**, kod yozmasdan
+- [x] Takedown (kitobni olib tashlash) tartibi yozma holda tayyor
+- [x] Kutubxonachi uchun yozma qoida: ruxsatsiz kitob yuklanmaydi
+- [x] Disk to'lishini kuzatish (watermark keshi eng tez o'sadi)
+- [x] Scope creep — yangi nishon/qoida **konfiguratsiya orqali**, kod yozmasdan
 
 ## Ochiq savollar (javob kerak)
 
-- [ ] Kitoblarning huquqiy maqomi qanday?
-- [ ] Kitobxon o'zi ro'yxatdan o'tadimi yoki kutubxonachi yaratadimi?
-- [ ] Domen bormi?
-- [ ] EPUB 1-bosqichda kerakmi yoki M15 da qolaveradimi?
-- [ ] Email tasdiqlash kerakmi (SMS emas)?
+- [x] Kitoblarning huquqiy maqomi qanday?
+- [x] Kitobxon o'zi ro'yxatdan o'tadimi yoki kutubxonachi yaratadimi?
+- [x] Domen bormi?
+- [x] EPUB 1-bosqichda kerakmi yoki M15 da qolaveradimi?
+- [x] Email tasdiqlash kerakmi (SMS emas)?
