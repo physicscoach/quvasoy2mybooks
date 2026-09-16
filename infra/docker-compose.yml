@@ -22,6 +22,7 @@ services:
       options: { max-size: "10m", max-file: "3" }
 
   web:
+    image: ${WEB_IMAGE:-ghcr.io/owner/kutubxona-backend:latest}
     build: { context: ../backend }
     restart: always
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2 --timeout 60
@@ -42,6 +43,7 @@ services:
     logging: *log
 
   worker:
+    image: ${WEB_IMAGE:-ghcr.io/owner/kutubxona-backend:latest}
     build: { context: ../backend }
     restart: always
     command: python manage.py qcluster
@@ -55,6 +57,7 @@ services:
     logging: *log
 
   next:
+    image: ${NEXT_IMAGE:-ghcr.io/owner/kutubxona-frontend:latest}
     build: { context: ../frontend }
     restart: always
     environment:

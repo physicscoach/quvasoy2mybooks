@@ -439,12 +439,12 @@ Bog'liq: M21 · Agent: `vps-deploy-ops`
 - [ ] SSH kalit, `ufw`, `fail2ban`, `unattended-upgrades`
 - [ ] Docker + Compose o'rnatish
 - [ ] `.env` to'ldirish (kuchli `SECRET_KEY`, parollar)
-- [ ] `frontend/Dockerfile` (standalone output)
-- [ ] GitHub Actions → GHCR → SSH deploy (**build faqat CI'da**, VPS'da emas)
-- [ ] `deploy.sh` (backup → pull → migrate → collectstatic → up -d → health)
-- [ ] Caddy avto-SSL ishlayapti
-- [ ] django-q2 `Schedule` yozuvlari production'da
-- [ ] `backup_db.sh` + cron + R2/B2 ga yuklash
+- [x] `frontend/Dockerfile` (standalone output)
+- [x] GitHub Actions → GHCR → SSH deploy (**build faqat CI'da**, VPS'da emas)
+- [x] `deploy.sh` (backup → pull → migrate → collectstatic → up -d → health)
+- [x] Caddy avto-SSL ishlayapti
+- [x] django-q2 `Schedule` yozuvlari production'da
+- [x] `backup_db.sh` + cron + R2/B2 ga yuklash
 - [ ] **Backup muvaffaqiyatsizligida Telegram xabari + Healthchecks.io**
 - [ ] **Backup'dan tiklashni sinab ko'rish** (sinalmagan backup = backup emas)
 - [ ] Sentry + UptimeRobot + disk monitoring
