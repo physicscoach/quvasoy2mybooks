@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
@@ -67,6 +68,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           {isLoading ? null : isAuthenticated && user ? (
             <>
               {(user.stats?.streak_days ?? 0) > 0 && (
@@ -116,14 +118,17 @@ export function Navbar() {
           )}
         </div>
 
-        <button
-          type="button"
-          className="flex items-center justify-center rounded-lg p-2 text-foreground md:hidden"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label={menuOpen ? "Menyuni yopish" : "Menyuni ochish"}
-        >
-          {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-lg p-2 text-foreground"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? "Menyuni yopish" : "Menyuni ochish"}
+          >
+            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (

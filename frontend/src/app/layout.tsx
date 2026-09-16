@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { Navbar } from "@/components/layout/Navbar";
 import { Toaster } from "@/components/ui/sonner";
@@ -31,15 +32,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="uz"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ServiceWorkerRegister />
-        <QueryProvider>
-          <Navbar />
-          <main className="flex flex-1 flex-col">{children}</main>
-          <Toaster position="top-center" richColors />
-        </QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <Navbar />
+            <main className="flex flex-1 flex-col">{children}</main>
+            <Toaster position="top-center" richColors theme="system" />
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
