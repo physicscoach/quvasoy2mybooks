@@ -9,6 +9,7 @@ services:
       SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
       ADMIN_PATH: ${ADMIN_PATH:-admin}
       ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+      DEFAULT_SNI: ${DEFAULT_SNI:-kutubxona.local}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data/caddy

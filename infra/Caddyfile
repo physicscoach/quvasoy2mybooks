@@ -4,6 +4,8 @@
 
 {
 	email {$ACME_EMAIL}
+	# IP orqali kirilganda brauzer SNI yubormaydi — qaysi sertifikat berilishi
+	default_sni {$DEFAULT_SNI}
 }
 
 {$SITE_ADDRESS} {
