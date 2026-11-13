@@ -30,6 +30,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const BASE_PAGE_WIDTH = 820;
 const SWIPE_MIN_PX = 60;
 
+// 1 MB bo'laklar (standart 64 KB): 38 MB kitob ~600 emas, ~40 so'rovda keladi —
+// uzoq serverda har so'rov kechikishi sezilarli. Obyekt doimiy (aks holda react-pdf qayta yuklaydi).
+const PDF_OPTIONS = { rangeChunkSize: 1024 * 1024 };
+
 interface PdfReaderProps {
   fileUrl: string;
   initialPage?: number;
@@ -216,6 +220,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
         <div className="mx-auto flex min-h-full w-fit min-w-full flex-col items-center gap-5 px-3 pt-4 pb-40 has-[.kitob-ochilish]:pt-5 has-[.kitob-ochilish]:pb-28">
           <Document
             file={fileUrl}
+            options={PDF_OPTIONS}
             onLoadSuccess={handleLoadSuccess}
             onLoadError={handleLoadError}
             loading={<ReaderLoading />}

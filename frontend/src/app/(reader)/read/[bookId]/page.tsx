@@ -31,10 +31,6 @@ const EpubReader = dynamic(() => import("@/components/reader/EpubReader"), {
   loading: () => <ReaderLoading />,
 });
 
-// Tiket ~120s amal qiladi; muddati tugashiga ~30s qolganda fonda yangilaymiz.
-const TICKET_TTL_MS = 120_000;
-const TICKET_REFRESH_BEFORE_MS = 30_000;
-
 function detectDeviceType(): "desktop" | "mobile" | "tablet" {
   if (typeof window === "undefined") return "desktop";
   const width = window.innerWidth;
@@ -83,20 +79,9 @@ export default function ReadPage() {
   }, [bookId, fileId]);
 
   useEffect(() => {
+    // Tiket bir marta olinadi (backend'da ~6 soat amal qiladi): URL o'zgarsa pdf.js
+    // butun kitobni qaytadan yuklaydi, shuning uchun o'qish davomida yangilanmaydi.
     let cancelled = false;
-    let refreshTimer: ReturnType<typeof setTimeout> | null = null;
-
-    function scheduleTicketRefresh() {
-      refreshTimer = setTimeout(async () => {
-        try {
-          const url = await fetchTicket();
-          if (!cancelled) setFileUrl(url);
-        } catch {
-          // internet yo'q bo'lishi mumkin — keyingi urinish sikl bilan davom etadi
-        }
-        if (!cancelled) scheduleTicketRefresh();
-      }, TICKET_TTL_MS - TICKET_REFRESH_BEFORE_MS);
-    }
 
     async function init() {
       if (!fileId) {
@@ -117,7 +102,6 @@ export default function ReadPage() {
         const url = await fetchTicket();
         if (cancelled) return;
         setFileUrl(url);
-        scheduleTicketRefresh();
 
         const session = await openReadingSession({
           book_public_id: bookId,
@@ -143,7 +127,6 @@ export default function ReadPage() {
 
     return () => {
       cancelled = true;
-      if (refreshTimer) clearTimeout(refreshTimer);
       const sid = sessionIdRef.current;
       if (sid) {
         void closeReadingSession({

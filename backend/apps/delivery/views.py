@@ -75,6 +75,9 @@ class FileDeliveryView(APIView):
 
     permission_classes = [AllowAny]
     authentication_classes = []
+    # pdf.js faylni yuzlab Range so'rovlarda oladi; anon 60/min (IP bo'yicha — maktabda butun
+    # sinf bitta IP) kitobni ochilmas qilardi. Himoya — imzolangan, muddatli tiket.
+    throttle_classes = []
 
     def get(self, request, token: str):
         try:

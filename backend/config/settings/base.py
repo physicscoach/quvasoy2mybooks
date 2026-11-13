@@ -131,7 +131,7 @@ REST_FRAMEWORK = {
         "login": "5/min",
         "register": "3/hour",
         "heartbeat": "6/min",
-        "ticket": "30/hour",
+        "ticket": "120/hour",
     },
 }
 
@@ -171,7 +171,9 @@ Q_CLUSTER = {
 }
 
 # --- Fayl yetkazish; SystemSetting bazadan ustidan yozadi ---
-DELIVERY_TICKET_TTL_READ = 120
+# O'qish tiketi: PDF bo'laklab (Range) yuklanadi, URL o'qish davomida o'zgarmasligi kerak
+# (har yangilanishda pdf.js butun hujjatni qaytadan ochardi). Imzo user+kitob+faylga bog'liq.
+DELIVERY_TICKET_TTL_READ = 6 * 3600
 DELIVERY_TICKET_TTL_DOWNLOAD = 60
 DOWNLOAD_DAILY_LIMIT = 10
 MAX_UPLOAD_SIZE_MB = 200
