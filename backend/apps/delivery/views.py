@@ -145,13 +145,21 @@ class FileDeliveryView(APIView):
         response = HttpResponse(status=200)
         if serve_path:
             rel = str(serve_path).replace(str(__import__("django.conf", fromlist=["settings"]).settings.BOOKS_ROOT), "").replace("\\", "/").lstrip("/")
-            response["X-Accel-Redirect"] = f"{settings.INTERNAL_FILES_PREFIX.rstrip('/')}/{rel}"
+            response["X-Accel-Redirect"] = _accel_quote(f"{settings.INTERNAL_FILES_PREFIX.rstrip('/')}/{rel}")
         else:
             response["X-Accel-Redirect"] = _internal_accel_path(file)
         response["Content-Type"] = content_type
         if payload.mode == "download":
-            response["Content-Disposition"] = f'attachment; filename="{os.path.basename(file.file.name)}"'
+            response["Content-Disposition"] = _attachment(os.path.basename(file.file.name))
         return response
+
+
+def _attachment(name: str) -> str:
+    """Kirillcha nomli faylni yuklab olish sarlavhasi (RFC 6266, ASCII zaxira nom bilan)."""
+    from urllib.parse import quote
+
+    fallback = name.encode("ascii", "ignore").decode() or "kitob.pdf"
+    return f"attachment; filename=\"{fallback}\"; filename*=UTF-8''{quote(name)}"
 
 
 def _internal_accel_path(file: BookFile) -> str:
@@ -159,4 +167,13 @@ def _internal_accel_path(file: BookFile) -> str:
 
     relative = file.file.name  # storage ichidagi nisbiy yol
     prefix = settings.INTERNAL_FILES_PREFIX.rstrip("/")
-    return f"{prefix}/{relative}"
+    return _accel_quote(f"{prefix}/{relative}")
+
+
+def _accel_quote(path: str) -> str:
+    """Sarlavha faqat ASCII bo'lishi kerak: kirillcha fayl nomlari (Ичимиздаги.pdf)
+    aks holda Django tomonidan =?utf-8?b?..?= ga aylanib, Caddy faylni topolmaydi.
+    Foiz-kodlangan yo'lni Caddy `rewrite` o'zi qayta dekodlaydi."""
+    from urllib.parse import quote
+
+    return quote(path, safe="/")
