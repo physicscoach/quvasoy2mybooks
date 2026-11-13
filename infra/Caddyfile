@@ -83,6 +83,11 @@
 	import sayt
 }
 
+# www. -> asosiy domen (SITE_ADDRESS bitta manzil bo'lishi shart: vergulli ro'yxatni Caddy qabul qilmaydi)
+www.{$SITE_ADDRESS} {
+	redir https://{$SITE_ADDRESS}{uri} permanent
+}
+
 # IP orqali kirish — Let's Encrypt qisqa muddatli (shortlived) IP sertifikati;
 # bermasa ichki sertifikatga qaytadi (sayt baribir ishlaydi)
 {$IP_ADDRESS:127.0.0.1} {
