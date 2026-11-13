@@ -1,0 +1,5 @@
+# Linux serverda ishlaydigan fayllar doim LF bo'lsin (Windows CRLF bash skriptlarni buzadi)
+*.sh text eol=lf
+Caddyfile text eol=lf
+*.yml text eol=lf
+Dockerfile text eol=lf
