@@ -15,7 +15,9 @@ import {
 import { useReadingTracker } from "@/hooks/useReadingTracker";
 import { ApiError } from "@/types/api";
 import { READER_BACKDROP_TINT, READER_THEMES, readerCssVars } from "@/components/reader/readerThemes";
-import { ReaderLoading, ReaderOwl } from "@/components/reader/ReaderChrome";
+import { ReaderLoading } from "@/components/reader/ReaderChrome";
+import { OwlPet, useOwlPet } from "@/components/reader/OwlPet";
+import { useAuth } from "@/hooks/useAuth";
 import { useReaderSettingsStore, type ReaderTheme } from "@/store/readerSettingsStore";
 
 // Reader og'ir (pdfjs) — faqat client'da, lazy yuklanadi.
@@ -60,6 +62,10 @@ export default function ReadPage() {
 
   const theme = useReaderSettingsStore((s) => s.theme);
   const setTheme = useReaderSettingsStore((s) => s.setTheme);
+  const owlMuted = useReaderSettingsStore((s) => s.owlMuted);
+  const setOwlMuted = useReaderSettingsStore((s) => s.setOwlMuted);
+  const { user } = useAuth();
+  const totalPagesRef = useRef<number | null>(null);
   // Mavzu faqat kitob sahifalariga taalluqli — atrof (fon, panellar) doim yorug'
   const frame = READER_THEMES.light;
 
@@ -150,9 +156,23 @@ export default function ReadPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookId, fileId]);
 
-  const handlePageChange = useCallback((page: number) => {
-    currentPageRef.current = page;
-  }, []);
+  const pet = useOwlPet({
+    ready: isReady && !!user,
+    name: user?.first_name || user?.username || "",
+    xp: user?.stats?.points_lifetime ?? 0,
+    streak: user?.stats?.streak_days ?? 0,
+    muted: owlMuted,
+    setMuted: setOwlMuted,
+  });
+  const notePage = pet.notePage;
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      currentPageRef.current = page;
+      notePage(page, format === "epub" ? null : totalPagesRef.current);
+    },
+    [notePage, format]
+  );
 
   const getPage = useCallback(() => currentPageRef.current, []);
 
@@ -179,8 +199,8 @@ export default function ReadPage() {
         <div className="absolute inset-0 transition-colors duration-500" style={{ backgroundColor: READER_BACKDROP_TINT.light }} />
       </div>
 
-      {/* Kichik ukki: keng ekranda o'ng yuqori burchakda (keyin pet bo'ladi) */}
-      <ReaderOwl className="absolute top-2 right-5 z-40 hidden w-[92px] xl:block 2xl:right-8 2xl:w-[104px]" />
+      {/* Ukki-pet: keng ekranda o'ng yuqori burchakda */}
+      <OwlPet pet={pet} variant="burchak" className="absolute top-2 right-5 z-40 hidden w-[92px] xl:flex 2xl:right-8 2xl:w-[104px]" />
 
       <header className="z-30 shrink-0 px-2 pt-2 sm:px-3">
         <div
@@ -195,7 +215,7 @@ export default function ReadPage() {
           >
             <ArrowLeft className="size-5" />
           </button>
-          <ReaderOwl className="-my-2 w-9 shrink-0 xl:hidden" />
+          <OwlPet pet={pet} variant="ixcham" className="-my-2 w-9 shrink-0 xl:hidden" />
 
           <div className="min-w-0 flex-1">
             <p className="truncate font-heading text-[15px] leading-tight font-bold sm:text-base">{title || "Kitob"}</p>
@@ -218,7 +238,10 @@ export default function ReadPage() {
               <button
                 key={key}
                 type="button"
-                onClick={() => setTheme(key)}
+                onClick={() => {
+                  if (key !== theme) pet.noteTheme(key);
+                  setTheme(key);
+                }}
                 aria-pressed={theme === key}
                 aria-label={`${READER_THEMES[key].label} sahifa`}
                 title={READER_THEMES[key].label}
@@ -245,7 +268,14 @@ export default function ReadPage() {
               onLocationChange={(_cfi, pct) => handlePageChange(Math.max(1, pct))}
             />
           ) : (
-            <PdfReader fileUrl={fileUrl} initialPage={startPage} onPageChange={handlePageChange} />
+            <PdfReader
+              fileUrl={fileUrl}
+              initialPage={startPage}
+              onPageChange={handlePageChange}
+              onDocumentLoad={(n) => {
+                totalPagesRef.current = n;
+              }}
+            />
           )
         ) : (
           <ReaderLoading text="Kitob tayyorlanmoqda..." />

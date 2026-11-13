@@ -8,6 +8,9 @@ interface ReaderSettingsState {
   zoom: number; // 50-300 (%)
   theme: ReaderTheme;
   pageMode: ReaderPageMode;
+  /** Ukki o'zi gapirmasin (pufakcha faqat bosilganda chiqadi). */
+  owlMuted: boolean;
+  setOwlMuted: (muted: boolean) => void;
   setZoom: (zoom: number) => void;
   setTheme: (theme: ReaderTheme) => void;
   setPageMode: (mode: ReaderPageMode) => void;
@@ -20,6 +23,8 @@ export const useReaderSettingsStore = create<ReaderSettingsState>()(
       zoom: 100,
       theme: "light",
       pageMode: "page",
+      owlMuted: false,
+      setOwlMuted: (owlMuted) => set({ owlMuted }),
       setZoom: (zoom) => set({ zoom: Math.min(300, Math.max(50, zoom)) }),
       setTheme: (theme) => set({ theme }),
       setPageMode: (pageMode) => set({ pageMode }),

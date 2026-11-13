@@ -736,3 +736,59 @@
     animation-duration: 0.01s;
   }
 }
+
+/* ---- Ukki-pet (o'qish oynasi) ---- */
+.ukki-sakrash {
+  animation: ukki-sakrash 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+@keyframes ukki-sakrash {
+  0% { transform: translateY(0) scale(1, 1); }
+  25% { transform: translateY(2px) scale(1.08, 0.9); }
+  55% { transform: translateY(-16px) scale(0.95, 1.06); }
+  80% { transform: translateY(0) scale(1.04, 0.96); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+.ukki-uxlash {
+  transform-origin: 50% 100%;
+  animation: ukki-uxlash 3.6s ease-in-out infinite;
+}
+@keyframes ukki-uxlash {
+  0%, 100% { transform: rotate(-4deg) scale(1, 1); }
+  50% { transform: rotate(-4deg) scale(1.02, 0.97); }
+}
+.ukki-zzz {
+  opacity: 0;
+  animation: ukki-zzz 2.1s ease-out infinite;
+}
+@keyframes ukki-zzz {
+  0% { opacity: 0; transform: translate(0, 6px) scale(0.6); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(10px, -22px) scale(1.1); }
+}
+.ukki-aura {
+  animation: ukki-aura 3s ease-in-out infinite;
+}
+@keyframes ukki-aura {
+  0%, 100% { opacity: 0.65; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.ukki-uchqun {
+  font-size: 12px;
+  animation: ukki-uchqun 2.4s ease-in-out infinite;
+}
+@keyframes ukki-uchqun {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(90deg); }
+}
+.pufakcha {
+  transform-origin: 100% 30%;
+  animation: pufakcha 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@keyframes pufakcha {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ukki-sakrash, .ukki-uxlash, .ukki-zzz, .ukki-aura, .ukki-uchqun, .pufakcha { animation: none; }
+  .ukki-zzz { opacity: 1; }
+}

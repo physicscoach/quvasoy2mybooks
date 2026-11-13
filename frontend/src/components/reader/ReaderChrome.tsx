@@ -140,28 +140,6 @@ export function ReaderLoading({ text = "Ukki kitobni ochyapti..." }: { text?: st
   );
 }
 
-/**
- * O'qish oynasidagi kichik ukki.
- * HOZIRCHA faqat bezak (tebranib turadi). KEYIN: pet — o'quvchi bilan gaplashadi,
- * o'qigan sari o'sadi/kayfiyati o'zgaradi. Pet mantiqi shu komponentga qo'shiladi.
- */
-export function ReaderOwl({ className }: { className?: string }) {
-  return (
-    <div className={cn("pointer-events-none select-none", className)} aria-hidden>
-      <div className="relative">
-        <span className="ukki-soya absolute inset-x-[18%] -bottom-1 h-2.5 rounded-[50%] bg-black/20 blur-[3px]" />
-        <Image
-          src="/rasm/ukki-hero.webp"
-          alt=""
-          width={589}
-          height={700}
-          className="ukki-tebranish relative h-auto w-full drop-shadow-[0_6px_10px_rgb(0_0_0/0.18)]"
-        />
-      </div>
-    </div>
-  );
-}
-
 /** Kitobning oxirgi sahifasida chiqadigan tabrik kartasi. */
 export function FinishCard({ onBack }: { onBack: () => void }) {
   return (
