@@ -96,7 +96,7 @@ export default function EpubReader({ fileUrl, initialCfi, onLocationChange }: Ep
   }, [zoom, colors.ink, colors.panel, loading]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden" style={readerCssVars(theme)}>
+    <div className="relative h-full w-full overflow-hidden" style={readerCssVars("light")}>
       <div className="flex h-full justify-center px-2 pt-4 pb-36 sm:px-4" onClick={() => setControlsVisible((v) => !v)}>
         <div
           className="qogoz-sahifa relative h-full w-full max-w-3xl overflow-hidden rounded-xl"

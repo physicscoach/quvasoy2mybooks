@@ -17,6 +17,7 @@ import {
   ReaderDock,
   ReaderLoading,
 } from "@/components/reader/ReaderChrome";
+import BookSpread, { type BookFlip, spreadPages, spreadStart } from "@/components/reader/BookSpread";
 
 // PDF.js worker loyiha bilan birga yig'iladi — tashqi CDN'ga bog'liq emas,
 // internet sust bo'lsa ham kitob ochiladi.
@@ -48,6 +49,9 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
   const [loadError, setLoadError] = useState<string | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [pageAspect, setPageAspect] = useState(1.414);
+  const [flip, setFlip] = useState<BookFlip | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -57,12 +61,12 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     onPageChangeRef.current = onPageChange;
   });
 
-  const updatePage = useCallback((page: number, prev: number) => {
+  const updatePage = useCallback((page: number, prev: number, report: number = page) => {
     setDirection(page >= prev ? "oldinga" : "orqaga");
     setCurrentPage(page);
     setPageInput(String(page));
     setSliderPage(null);
-    onPageChangeRef.current?.(page);
+    onPageChangeRef.current?.(report);
     containerRef.current?.scrollTo({ top: 0 });
   }, []);
 
@@ -71,6 +75,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
       setContainerWidth(entries[0]?.contentRect.width ?? 0);
+      setContainerHeight(entries[0]?.contentRect.height ?? 0);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -80,6 +85,13 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     (pdf: PDFDocumentProxy) => {
       setNumPages(pdf.numPages);
       setLoadError(null);
+      pdf
+        .getPage(1)
+        .then((pg) => {
+          const v = pg.getViewport({ scale: 1 });
+          if (v.width > 0) setPageAspect(v.height / v.width);
+        })
+        .catch(() => {});
       onDocumentLoad?.(pdf.numPages);
       setCurrentPage((prev) => {
         const clamped = Math.min(Math.max(prev, 1), pdf.numPages);
@@ -94,26 +106,60 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     setLoadError("Kitob yuklanmadi. Internetni tekshirib, sahifani yangilang.");
   }, []);
 
+  // Keng ekranda sahifa rejimi = ochiq kitob (ikki sahifa yonma-yon)
+  const spreadFit = Math.min((containerWidth - 170) / 2, (containerHeight - 130) / pageAspect, 760);
+  const spread = pageMode === "page" && containerWidth >= 900 && spreadFit >= 260;
+  const spreadPageW = spread ? Math.floor((spreadFit * zoom) / 100) : 0;
+  const spreadPageH = Math.round(spreadPageW * pageAspect);
+  const spreadFirst = spreadStart(currentPage);
+  const lastShown = spreadFirst === 1 ? 1 : Math.min(spreadFirst + 1, numPages ?? spreadFirst + 1);
+
   const goToPage = useCallback(
     (page: number) => {
       if (!numPages) return;
       const clamped = Math.min(Math.max(page, 1), numPages);
+      if (spread) {
+        const from = spreadStart(currentPage);
+        const to = spreadStart(clamped);
+        if (from === to) {
+          setSliderPage(null);
+          setPageInput(String(currentPage));
+          return;
+        }
+        setFlip({
+          dir: to > from ? "next" : "prev",
+          from: spreadPages(from, numPages),
+          to: spreadPages(to, numPages),
+        });
+        updatePage(to, currentPage, to === 1 ? 1 : Math.min(to + 1, numPages));
+        return;
+      }
       if (clamped !== currentPage) updatePage(clamped, currentPage);
       else setSliderPage(null);
     },
-    [numPages, currentPage, updatePage]
+    [numPages, currentPage, updatePage, spread]
+  );
+
+  // Oldinga/orqaga: kitob rejimida bir yoyilma (2 sahifa), aks holda 1 sahifa
+  const step = useCallback(
+    (d: 1 | -1) => {
+      if (!spread) return goToPage(currentPage + d);
+      const s = spreadStart(currentPage);
+      goToPage(d === 1 ? (s === 1 ? 2 : s + 2) : s <= 2 ? 1 : s - 2);
+    },
+    [spread, currentPage, goToPage]
   );
 
   // Klaviatura: ← → va PageUp/PageDown bilan varaqlash
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
-      if (e.key === "ArrowRight" || e.key === "PageDown") goToPage(currentPage + 1);
-      if (e.key === "ArrowLeft" || e.key === "PageUp") goToPage(currentPage - 1);
+      if (e.key === "ArrowRight" || e.key === "PageDown") step(1);
+      if (e.key === "ArrowLeft" || e.key === "PageUp") step(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentPage, goToPage]);
+  }, [step]);
 
   const handlePageInputSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,14 +181,16 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     const dx = t.clientX - start.x;
     const dy = t.clientY - start.y;
     if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-    goToPage(currentPage + (dx < 0 ? 1 : -1));
+    step(dx < 0 ? 1 : -1);
   };
 
   const fitWidth = Math.min(Math.max(containerWidth - 24, 0), BASE_PAGE_WIDTH);
   const pageWidth = fitWidth > 0 ? Math.floor((fitWidth * zoom) / 100) : undefined;
   const shownPage = sliderPage ?? currentPage;
   const percent = numPages ? Math.round((shownPage / numPages) * 100) : 0;
-  const isLastPage = !!numPages && currentPage >= numPages;
+  const isLastPage = !!numPages && (spread ? lastShown : currentPage) >= numPages;
+  const canPrev = spread ? spreadFirst > 1 : currentPage > 1;
+  const canNext = !!numPages && (spread ? lastShown : currentPage) < numPages;
 
   // Katta fayl uchun scroll rejimida ham faqat joriy sahifa atrofidagi
   // oynani (currentPage ± 1) haqiqiy render qilamiz.
@@ -155,7 +203,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
   return (
     <div
       className="relative h-full w-full overflow-hidden"
-      style={readerCssVars(theme)}
+      style={readerCssVars("light")}
       onContextMenu={(e) => e.preventDefault()}
     >
       <div
@@ -165,7 +213,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="mx-auto flex min-h-full w-fit min-w-full flex-col items-center gap-5 px-3 pt-4 pb-40">
+        <div className="mx-auto flex min-h-full w-fit min-w-full flex-col items-center gap-5 px-3 pt-4 pb-40 has-[.kitob-ochilish]:pt-5 has-[.kitob-ochilish]:pb-28">
           <Document
             file={fileUrl}
             onLoadSuccess={handleLoadSuccess}
@@ -179,7 +227,17 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
             noData={<div className="flex h-64 items-center justify-center text-sm opacity-70">Fayl topilmadi.</div>}
             suspense={false}
           >
-            {numPages
+            {numPages && spread ? (
+              <BookSpread
+                pages={spreadPages(spreadFirst, numPages)}
+                flip={flip}
+                onFlipEnd={() => setFlip(null)}
+                pageWidth={spreadPageW}
+                pageHeight={spreadPageH}
+                theme={theme}
+                progress={numPages > 1 ? (lastShown - 1) / (numPages - 1) : 0}
+              />
+            ) : numPages
               ? pagesToRender.map((p) => (
                   <div
                     key={p}
@@ -188,9 +246,9 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
                       "qogoz-sahifa relative overflow-hidden rounded-md bg-white",
                       pageMode === "page" && (direction === "oldinga" ? "sahifa-oldinga" : "sahifa-orqaga"),
                       theme === "dark" && "invert-[.9] hue-rotate-180",
-                      theme === "sepia" && "sepia-[.35]"
                     )}
                   >
+                    {theme === "sepia" && <span aria-hidden className="pointer-events-none absolute inset-0 z-10 bg-[#f2e2bd] mix-blend-multiply" />}
                     <Page
                       pageNumber={p}
                       width={pageWidth}
@@ -221,10 +279,10 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
 
       {numPages && pageMode === "page" ? (
         <EdgeNav
-          onPrev={() => goToPage(currentPage - 1)}
-          onNext={() => goToPage(currentPage + 1)}
-          canPrev={currentPage > 1}
-          canNext={currentPage < numPages}
+          onPrev={() => step(-1)}
+          onNext={() => step(1)}
+          canPrev={canPrev}
+          canNext={canNext}
         />
       ) : null}
 
@@ -245,8 +303,8 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
         <div className="mt-1.5 flex items-center justify-between gap-1">
           <div className="flex items-center gap-0.5 sm:gap-1">
             <DockButton
-              disabled={currentPage <= 1}
-              onClick={() => goToPage(currentPage - 1)}
+              disabled={!canPrev}
+              onClick={() => step(-1)}
               aria-label="Oldingi sahifa"
             >
               <ChevronLeft className="size-5" />
@@ -265,8 +323,8 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
             </form>
 
             <DockButton
-              disabled={!numPages || currentPage >= numPages}
-              onClick={() => goToPage(currentPage + 1)}
+              disabled={!canNext}
+              onClick={() => step(1)}
               aria-label="Keyingi sahifa"
             >
               <ChevronRight className="size-5" />

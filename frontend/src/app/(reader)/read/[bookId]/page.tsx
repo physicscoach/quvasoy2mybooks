@@ -60,7 +60,8 @@ export default function ReadPage() {
 
   const theme = useReaderSettingsStore((s) => s.theme);
   const setTheme = useReaderSettingsStore((s) => s.setTheme);
-  const colors = READER_THEMES[theme] ?? READER_THEMES.light;
+  // Mavzu faqat kitob sahifalariga taalluqli — atrof (fon, panellar) doim yorug'
+  const frame = READER_THEMES.light;
 
   const currentPageRef = useRef(1);
   const sessionIdRef = useRef<string | null>(null);
@@ -171,20 +172,20 @@ export default function ReadPage() {
   }
 
   return (
-    <div className="relative isolate flex h-dvh w-full flex-col" style={readerCssVars(theme)}>
+    <div className="relative isolate flex h-dvh w-full flex-col" style={readerCssVars("light")}>
       {/* Kutubxona sahnasi (Higgsfield, bosh sahifa uslubida) + mavzu pardasi */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" style={{ backgroundColor: colors.bg }}>
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" style={{ backgroundColor: frame.bg }}>
         <div className="absolute inset-0 bg-[url('/rasm/oqish-fon.webp')] bg-cover bg-center" />
-        <div className="absolute inset-0 transition-colors duration-500" style={{ backgroundColor: READER_BACKDROP_TINT[theme] }} />
+        <div className="absolute inset-0 transition-colors duration-500" style={{ backgroundColor: READER_BACKDROP_TINT.light }} />
       </div>
 
-      {/* Kichik ukki: keng ekranda chap pastki burchakda, javon yonida (keyin pet bo'ladi) */}
-      <ReaderOwl className="absolute bottom-6 left-8 z-10 hidden w-[110px] xl:block 2xl:left-14 2xl:w-[128px]" />
+      {/* Kichik ukki: keng ekranda o'ng yuqori burchakda (keyin pet bo'ladi) */}
+      <ReaderOwl className="absolute top-2 right-5 z-40 hidden w-[92px] xl:block 2xl:right-8 2xl:w-[104px]" />
 
       <header className="z-30 shrink-0 px-2 pt-2 sm:px-3">
         <div
           className="mx-auto flex max-w-5xl items-center gap-2 rounded-2xl border border-[var(--r-border)] px-1.5 py-1.5 shadow-[0_10px_30px_-18px_rgb(0_0_0/0.5)] sm:gap-3 sm:px-2"
-          style={{ backgroundColor: colors.panel }}
+          style={{ backgroundColor: frame.panel }}
         >
           <button
             type="button"
