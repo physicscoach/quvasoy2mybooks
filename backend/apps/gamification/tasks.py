@@ -69,4 +69,5 @@ def _process_one(event: GamificationEvent):
         session=session,
         book=book,
         description=payload.get("description", ""),
+        points_override=payload.get("points_override"),
     )

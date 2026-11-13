@@ -95,6 +95,11 @@ class Book(TimeStampedModel):
     status = models.CharField("Holati", max_length=16, choices=Status.choices, default=Status.DRAFT, db_index=True)
     is_downloadable = models.BooleanField("Yuklab olish mumkinmi (kitob darajasi)", default=False)
     is_featured = models.BooleanField("Tavsiya etilganmi", default=False)
+    auto_publish = models.BooleanField(
+        "Tayyor bo'lgach o'zi katalogga chiqsin", default=False,
+        help_text="Fayl tekshirilib bo'lgach kitob o'quvchilarga avtomatik ko'rinadi. "
+                  "Avval o'zingiz ko'rib chiqmoqchi bo'lsangiz, belgini olib tashlang.",
+    )
     protection_level = models.CharField(
         "Himoya darajasi", max_length=16, choices=ProtectionLevel.choices, default=ProtectionLevel.STANDARD,
     )

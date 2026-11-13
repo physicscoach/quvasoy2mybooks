@@ -78,3 +78,24 @@ class AuthFlowTests(TestCase):
         user.save(update_fields=["token_version"])
         # eski access endi bekor
         self.assertEqual(self.client.get(reverse("accounts:me")).status_code, 401)
+
+
+class AdminUrlTests(TestCase):
+    """Boshqaruv paneli manzili faqat xodimga beriladi (prod'da ADMIN_PATH maxfiy)."""
+
+    def setUp(self):
+        cache.clear()
+        User.objects.create_user(username="nodira", password="Kutub2026xyz", role="librarian")
+        User.objects.create_user(username="oquvchi", password="Kitob2026xyz", role="reader")
+
+    def _login(self, username, password):
+        return self.client.post("/api/v1/auth/login", {"login": username, "password": password},
+                                content_type="application/json")
+
+    def test_reader_gets_no_admin_url(self):
+        self.assertIsNone(self._login("oquvchi", "Kitob2026xyz").data["admin_url"])
+        self.assertIsNone(self.client.get("/api/v1/auth/me").data["admin_url"])
+
+    def test_librarian_gets_admin_url(self):
+        data = self._login("nodira", "Kutub2026xyz").data
+        self.assertTrue(data["admin_url"].endswith(reverse("admin:index")))

@@ -13,6 +13,8 @@ if not os.environ.get("POSTGRES_PASSWORD"):
 DEBUG = False
 # Local Docker HTTP test uchun SSL_REDIRECT=0 qilinadi; prod'da default (1)
 SECURE_SSL_REDIRECT = os.environ.get("SSL_REDIRECT", "1") == "1"
+# Docker healthcheck ichkaridan http orqali so'raydi — 301 bo'lmasin
+SECURE_REDIRECT_EXEMPT = [r"^api/v1/health$"]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

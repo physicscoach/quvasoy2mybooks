@@ -49,7 +49,13 @@ export type ReadingStatus = "not_started" | "in_progress" | "completed" | string
 export interface ReadingProgress {
   max_page_reached: number;
   current_page: number;
-  percent: number;
+  percent: number | string; // DRF DecimalField -> string
   status: ReadingStatus;
+  book_title?: string;
+  book_public_id?: string;
+  book_slug?: string;
+  book_page_count?: number;
+  book_cover_url?: string | null;
+  last_read_at?: string | null;
   [key: string]: unknown;
 }

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "apps.reading",
     "apps.gamification",
     "apps.integrity",
+    "apps.quiz",
 ]
 
 MIDDLEWARE = [
@@ -85,6 +86,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "uz"
+# Django va admin paneli (unfold) o'zbekchaga to'liq o'girilmagan — yetishmaganlari shu yerda
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_TZ = True
@@ -187,11 +190,50 @@ READING = {
     "SESSION_TIMEOUT_SEC": 300,
 }
 
+# Django sessiyasi bilan faqat admin panelga kiriladi (sayt JWT ishlatadi), shuning
+# uchun kirish sahifasi to'g'ridan-to'g'ri ochilganda ham panel bosh sahifasiga o'tadi.
+LOGIN_REDIRECT_URL = "/" + os.environ.get("ADMIN_PATH", "admin") + "/"
+
+
+def _kirish_rasmi(request):
+    from django.templatetags.static import static
+
+    return static("core/admin-kirish.svg")
+
+
 UNFOLD = {
     "SITE_TITLE": "Elektron kutubxona",
     "SITE_HEADER": "Elektron kutubxona",
+    "SITE_SUBHEADER": "Boshqaruv paneli",
     "SITE_SYMBOL": "local_library",
+    # «Saytga qaytish» — o'quvchilar saytiga (prod'da bitta domen; dev'da :3000, dev.py)
+    "SITE_URL": os.environ.get("SITE_URL", "/"),
     "SHOW_HISTORY": True,
+    # Bosh sahifa: uch asosiy ish (kitob, oʻquvchi, test) va eʻtibor talab qiladigan narsalar
+    "DASHBOARD_CALLBACK": "apps.core.dashboard.dashboard_callback",
+    # Kirish sahifasi: o'ng tomonda sayt uslubidagi rasm (javon, kitoblar)
+    "LOGIN": {"image": _kirish_rasmi},
+    # Sayt bilan bir xil Bookly yashili (#219150), R G B
+    "COLORS": {
+        "primary": {
+            "50": "237 248 241",
+            "100": "212 238 223",
+            "200": "171 221 191",
+            "300": "120 198 152",
+            "400": "70 172 113",
+            "500": "33 145 80",
+            "600": "28 125 69",
+            "700": "25 105 59",
+            "800": "22 84 48",
+            "900": "19 69 41",
+            "950": "9 39 22",
+        },
+    },
+    # Yon menyu — asl holidagidek: barcha bo'limlar (har kimga o'z ruxsati bo'yicha), qidiruv bilan
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+    },
 }
 
 LOGGING = {

@@ -39,14 +39,31 @@ class LoginSerializer(serializers.Serializer):
 
 class MeSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
+    admin_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             "public_id", "username", "email", "first_name", "last_name",
-            "role", "avatar", "timezone", "locale", "stats",
+            "role", "avatar", "timezone", "locale", "stats", "admin_url",
         )
         read_only_fields = fields
+
+    def get_admin_url(self, obj):
+        """Boshqaruv paneli manzili — faqat kutubxonachi/administratorga (prod'da yo'l maxfiy)."""
+        if obj.role not in (User.Role.LIBRARIAN, User.Role.ADMIN):
+            return None
+        from django.urls import reverse
+
+        path = reverse("admin:index")
+        request = self.context.get("request")
+        if request is None:
+            return path
+        # Dev'da sayt :3000 da, admin esa Django'da (:8000) — to'liq manzil kerak.
+        # Prod'da ikkalasi bitta domenda (Caddy), nisbiy yo'l yetarli.
+        from django.conf import settings
+
+        return request.build_absolute_uri(path) if settings.DEBUG else path
 
     def get_stats(self, obj):
         from apps.gamification.models import Level

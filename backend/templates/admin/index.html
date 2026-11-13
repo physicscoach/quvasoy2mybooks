@@ -1,0 +1,72 @@
+{% extends 'admin/base.html' %}
+
+{% load i18n %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header }}</a></h1>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl">
+    <p class="mb-6 text-font-default-light dark:text-font-default-dark">
+        Xush kelibsiz, {{ request.user.first_name|default:request.user.username }}. Bugun nima qilamiz?
+    </p>
+
+    {# Uch asosiy ish — har biriga bitta katta tugma #}
+    <div class="gap-4 grid md:grid-cols-3">
+        {% for card in cards %}
+        <div class="bg-white border border-gray-200 flex flex-col p-5 rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-800">
+            <div class="flex gap-3 items-center mb-3">
+                <span class="bg-primary-100 flex h-10 items-center justify-center rounded-md text-primary-700 w-10 dark:bg-primary-500/20 dark:text-primary-400">
+                    <span class="material-symbols-outlined">{{ card.icon }}</span>
+                </span>
+                <h2 class="font-semibold text-font-important-light text-base dark:text-font-important-dark">{{ card.title }}</h2>
+            </div>
+            <p class="mb-5 text-font-default-light dark:text-font-default-dark">
+                <span class="font-semibold text-2xl text-font-important-light dark:text-font-important-dark">{{ card.count }}</span>
+                {{ card.count_label }}
+            </p>
+            <div class="flex flex-col gap-2 mt-auto">
+                {% if card.primary %}
+                <a href="{{ card.primary.1 }}" class="bg-primary-600 font-medium px-4 py-2.5 rounded-md text-center text-sm text-white">
+                    {{ card.primary.0 }}
+                </a>
+                {% endif %}
+                <a href="{{ card.secondary.1 }}" class="border border-gray-200 font-medium px-4 py-2.5 rounded-md text-center text-font-default-light text-sm dark:border-gray-700 dark:text-font-default-dark">
+                    {{ card.secondary.0 }}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if todos %}
+    <h2 class="font-semibold mb-3 mt-8 text-font-important-light text-sm dark:text-font-important-dark">E'tibor bering</h2>
+    <ul class="bg-white border border-gray-200 divide-gray-200 divide-y rounded-md shadow-sm dark:bg-gray-900 dark:border-gray-800 dark:divide-gray-800">
+        {% for text, link in todos %}
+        <li>
+            <a href="{{ link }}" class="flex items-center justify-between px-4 py-3 text-font-default-light text-sm dark:text-font-default-dark">
+                {{ text }}
+                <span class="material-symbols-outlined text-font-subtle-light dark:text-font-subtle-dark">chevron_right</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if request.user.is_superuser %}
+    <details class="mt-8">
+        <summary class="cursor-pointer font-semibold text-font-important-light text-sm dark:text-font-important-dark">
+            Barcha bo'limlar (administrator uchun)
+        </summary>
+        <div class="mt-4">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+    </details>
+    {% endif %}
+</div>
+{% endblock %}

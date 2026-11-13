@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    ActivityListView,
     CloseSessionView,
     HeartbeatBatchView,
     OpenSessionView,
@@ -12,6 +13,7 @@ urlpatterns = [
     path("reading/sessions/open", OpenSessionView.as_view(), name="reading-session-open"),
     path("reading/sessions/close", CloseSessionView.as_view(), name="reading-session-close"),
     path("reading/heartbeats", HeartbeatBatchView.as_view(), name="reading-heartbeats"),
+    path("reading/activity", ActivityListView.as_view(), name="reading-activity"),
     path("reading/progress", ProgressListView.as_view(), name="reading-progress-list"),
     path("reading/progress/<uuid:book_public_id>", ProgressDetailView.as_view(), name="reading-progress-detail"),
 ]

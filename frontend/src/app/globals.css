@@ -7,9 +7,21 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --color-doska: var(--doska);
+  --color-doska-deep: var(--doska-deep);
+  --color-doska-soft: var(--doska-soft);
+  --color-bor: var(--bor);
+  --color-bor-deep: var(--bor-deep);
+  --color-olov: var(--olov);
+  --color-osmon: var(--osmon);
+  --color-binafsha: var(--binafsha);
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-primary-deep: var(--primary-deep);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,82 +61,636 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Bookly uslubi: yashil brend, oq va och kulrang yuzalar, to'q kulrang matn.
+     O'quvchilar uchun qiziqarli aksentlar: quyosh sarig'i (XP/tanga),
+     olov (seriya), osmon va binafsha (nishon, bezak). */
+  --brand: #219150;
+  --brand-deep: #19733f;
+  --brand-soft: #e7f5ed;
+  --doska: #219150;
+  --doska-deep: #19733f;
+  --doska-soft: #2aa35e;
+  --bor: #ffc940;
+  --bor-deep: #d99a00;
+  --olov: #f4553f;
+  --osmon: #2f7fd6;
+  --binafsha: #7c5cff;
+
+  --background: #ffffff;
+  --foreground: #333333;
+  --card: #ffffff;
+  --card-foreground: #333333;
+  --popover: #ffffff;
+  --popover-foreground: #333333;
+  --primary: #219150;
+  --primary-deep: #19733f;
+  --primary-foreground: #ffffff;
+  --secondary: #e7f5ed;
+  --secondary-foreground: #19733f;
+  --muted: #f2f3f2;
+  --muted-foreground: #666666;
+  --accent: #fff1c4;
+  --accent-foreground: #4a3700;
+  --destructive: #d43a26;
+  --border: #e3e5e3;
+  --input: #d4d7d4;
+  --ring: #219150;
+  --chart-1: #219150;
+  --chart-2: #2f7fd6;
+  --chart-3: #ffc940;
+  --chart-4: #f4553f;
+  --chart-5: #7c5cff;
+  --radius: 0.375rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #333333;
+  --sidebar-primary: #219150;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f3f2;
+  --sidebar-accent-foreground: #19733f;
+  --sidebar-border: #e3e5e3;
+  --sidebar-ring: #219150;
+
+  --gisht-yuza: #eeeeee;
+  --soya: 0 0.5rem 1rem rgb(0 0 0 / 0.08);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --brand: #3ccf7f;
+  --brand-deep: #23a35c;
+  --brand-soft: #173326;
+  --doska: #1c7a45;
+  --doska-deep: #135733;
+  --doska-soft: #23904f;
+
+  --background: #121614;
+  --foreground: #e9ecea;
+  --card: #1a1f1c;
+  --card-foreground: #e9ecea;
+  --popover: #1e2420;
+  --popover-foreground: #e9ecea;
+  --primary: #3ccf7f;
+  --primary-deep: #23a35c;
+  --primary-foreground: #06200f;
+  --secondary: #173326;
+  --secondary-foreground: #b9f0d1;
+  --muted: #1e2420;
+  --muted-foreground: #a3aca6;
+  --accent: #4a3c0c;
+  --accent-foreground: #ffe08a;
+  --destructive: #ff7a66;
+  --border: #2b332e;
+  --input: #38423b;
+  --ring: #3ccf7f;
+  --sidebar: #1a1f1c;
+  --sidebar-foreground: #e9ecea;
+  --sidebar-primary: #3ccf7f;
+  --sidebar-primary-foreground: #06200f;
+  --sidebar-accent: #1e2420;
+  --sidebar-accent-foreground: #e9ecea;
+  --sidebar-border: #2b332e;
+  --sidebar-ring: #3ccf7f;
+
+  --gisht-yuza: #1b201d;
+  --soya: 0 0.5rem 1rem rgb(0 0 0 / 0.35);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+  }
   body {
     @apply bg-background text-foreground;
   }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+}
+
+/* ───────────── Bookly yuzalari ───────────── */
+
+/* Och g'isht devor: hero va kirish sahifasi ortida */
+.gisht {
+  background-color: var(--gisht-yuza);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='40'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.05' stroke-width='2'%3E%3Cpath d='M0 1h72M0 21h72M1 1v20M37 21v20'/%3E%3C/g%3E%3C/svg%3E");
+}
+.dark .gisht {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='40'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.35' stroke-width='2'%3E%3Cpath d='M0 1h72M0 21h72M1 1v20M37 21v20'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* To'q g'isht devor: "Kunlik maqsad" banneri */
+.gisht-tuq {
+  background-color: #263029;
+  background-image:
+    radial-gradient(70% 90% at 15% 50%, rgb(33 145 80 / 0.4), transparent 70%),
+    linear-gradient(90deg, rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.45)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='40'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='3'%3E%3Cpath d='M0 1h72M0 21h72M1 1v20M37 21v20'/%3E%3C/g%3E%3C/svg%3E");
+  color: #fff;
+}
+
+/* Ichki sahifalar sarlavhasi — yashil banner */
+.doska {
+  background-color: var(--doska);
+  background-image:
+    radial-gradient(60% 120% at 100% 0%, rgb(255 255 255 / 0.16), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='40'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.06' stroke-width='2'%3E%3Cpath d='M0 1h72M0 21h72M1 1v20M37 21v20'/%3E%3C/g%3E%3C/svg%3E");
+  color: #fff;
+}
+.doska-rom {
+  border-radius: 0.5rem;
+  box-shadow: var(--soya);
+}
+
+/* Bo'lim sarlavhasi: ingichka ramkadagi yozuv, ikki yonidan chiziq o'tadi */
+.bolim-sarlavha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.bolim-sarlavha::before,
+.bolim-sarlavha::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+.bolim-sarlavha > * {
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 0.45rem 1.25rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 3vw, 1.85rem);
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Devor tokchasi: oq taxta va ostidagi ikkita kulrang kronshteyn */
+.devor-tokcha {
+  position: relative;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(#ffffff, #e9e9e9);
+  box-shadow:
+    0 1px 0 #d6d6d6,
+    0 22px 30px -10px rgb(0 0 0 / 0.28);
+}
+.dark .devor-tokcha {
+  background: linear-gradient(#3a423d, #2b322e);
+  box-shadow:
+    0 1px 0 #101311,
+    0 22px 30px -10px rgb(0 0 0 / 0.6);
+}
+.devor-tokcha::before,
+.devor-tokcha::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  width: 12px;
+  height: 16px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, #6d6d6d, #9a9a9a 50%, #6d6d6d);
+}
+.devor-tokcha::before {
+  left: 20%;
+}
+.devor-tokcha::after {
+  right: 20%;
+}
+
+/* Kitob kartasi (Bookly): qiya kesilgan kulrang fon, hover'da ramka va
+   tepadan tushib keladigan belgilar */
+.kitob-karta {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: var(--card);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.kitob-karta:hover,
+.kitob-karta:focus-within {
+  border-color: color-mix(in oklab, var(--brand) 55%, var(--border));
+  box-shadow: var(--soya);
+}
+.kitob-karta .karta-fon {
+  position: relative;
+  isolation: isolate;
+}
+.kitob-karta .karta-fon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--muted);
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
+}
+.kitob-karta .karta-belgilar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  transform: translateY(-110%);
+  transition: transform 0.25s ease;
+}
+.kitob-karta:hover .karta-belgilar,
+.kitob-karta:focus-within .karta-belgilar {
+  transform: translateY(0);
+}
+.kitob-karta .karta-muqova {
+  transition: transform 0.35s ease;
+}
+.kitob-karta:hover .karta-muqova {
+  transform: translateY(-6px) rotate(-1.5deg);
+}
+@media (hover: none) {
+  .kitob-karta .karta-belgilar {
+    transform: translateY(0);
+  }
+}
+
+/* Gorizontal tasma: ikki qator qarama-qarshi yo'nalishda sekin siljiydi */
+.tasma {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.tasma-ichi {
+  display: flex;
+  width: max-content;
+  gap: 1.25rem;
+  padding: 0.25rem 0;
+  animation: tasma var(--d, 40s) linear infinite;
+}
+.tasma-ichi[data-yonalish="ong"] {
+  animation-direction: reverse;
+}
+.tasma:hover .tasma-ichi,
+.tasma:focus-within .tasma-ichi {
+  animation-play-state: paused;
+}
+@keyframes tasma {
+  to {
+    transform: translateX(calc(-50% - 0.625rem));
+  }
+}
+
+/* Gorizontal slayder (strelkalar bilan) */
+.slayder {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--kenglik, calc((100% - 3 * 1.25rem) / 4));
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 0.25rem 0.125rem 0.75rem;
+}
+.slayder::-webkit-scrollbar {
+  display: none;
+}
+.slayder > * {
+  scroll-snap-align: start;
+}
+.slayder[data-ustun="3"] {
+  --kenglik: calc((100% - 2 * 1.25rem) / 3);
+}
+@media (max-width: 1023px) {
+  .slayder,
+  .slayder[data-ustun="3"] {
+    --kenglik: calc((100% - 1.25rem) / 2);
+  }
+}
+@media (max-width: 559px) {
+  .slayder,
+  .slayder[data-ustun="3"] {
+    --kenglik: 82%;
+  }
+}
+
+/* Bosh sahifa sahnasi: rasmning chap cheti fonga silliq qo'shilib ketadi (keng ekranlarda) */
+@media (min-width: 1280px) {
+  .sahna-rasm {
+    /* chap va yuqori chetlar osmon rangiga silliq o'tadi */
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 0, #000 9%),
+      linear-gradient(180deg, transparent 0, #000 9%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent 0, #000 9%),
+      linear-gradient(180deg, transparent 0, #000 9%);
+    mask-composite: intersect;
+  }
+}
+
+/* Podiumdagi kitob: o'ng tomonda varaqlar qalinligi, ostida soya */
+.kitob-3d {
+  border-radius: 2px 5px 5px 2px;
+  box-shadow:
+    5px 1px 0 -1px #f4efe3,
+    7px 2px 0 -1px #ddd5c4,
+    9px 3px 0 -2px #c9bfab,
+    0 22px 26px -12px rgb(0 0 0 / 0.42);
+}
+
+/* Ukki va chiroq — sahnada yengil "nafas" */
+.ukki {
+  animation: ukki-nafas 6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes ukki-nafas {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.015, 0.99);
+  }
+}
+.chiroq {
+  animation: chiroq 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgb(255 214 77 / 0.75));
+}
+@keyframes chiroq {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-6px) rotate(4deg);
+    opacity: 1;
+  }
+}
+
+/* Hero javonidagi kitoblar almashinuvi */
+.javon-kitob {
+  transition:
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.45s;
+}
+.javon-kitob[data-almashmoqda="true"] {
+  transform: translateY(-18px) scale(0.94);
+  opacity: 0;
+}
+
+/* Hero'dagi o'ynoqi bezaklar */
+.suzuvchi {
+  animation: suzuvchi var(--d, 6s) ease-in-out var(--dl, 0s) infinite;
+}
+@keyframes suzuvchi {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-12px) rotate(calc(var(--r, 0deg) * -1));
+  }
+}
+
+/* Paydo bo'lish (bo'limlar ko'rinishga kirganda) */
+.paydo {
+  animation: paydo 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--dl, 0s);
+}
+@keyframes paydo {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+
+/* ============ O'qish oynasi ============ */
+/* Sahifa almashganda yumshoq kirish (yo'nalishga qarab) */
+.sahifa-oldinga {
+  animation: sahifa-oldinga 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.sahifa-orqaga {
+  animation: sahifa-orqaga 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes sahifa-oldinga {
+  from {
+    opacity: 0;
+    transform: translateX(28px) rotateY(-4deg);
+  }
+}
+@keyframes sahifa-orqaga {
+  from {
+    opacity: 0;
+    transform: translateX(-28px) rotateY(4deg);
+  }
+}
+
+/* Ukki tebranishi (yuklanish, tabrik) */
+.ukki-tebranish {
+  animation: ukki-tebranish 2.4s ease-in-out infinite;
+}
+.ukki-soya {
+  animation: ukki-soya 2.4s ease-in-out infinite;
+}
+@keyframes ukki-tebranish {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+@keyframes ukki-soya {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.75);
+    opacity: 0.6;
+  }
+}
+
+/* Sahifa slayderi: yashil to'ldirilgan chiziq + oq tutqich */
+.sahifa-slayder::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--primary) var(--fill), var(--r-border) var(--fill));
+}
+.sahifa-slayder::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--primary) var(--fill), var(--r-border) var(--fill));
+}
+.sahifa-slayder::-webkit-slider-thumb {
+  appearance: none;
+  margin-top: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid var(--primary);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  transition: transform 0.15s;
+}
+.sahifa-slayder::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid var(--primary);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+.sahifa-slayder:active::-webkit-slider-thumb {
+  transform: scale(1.25);
+}
+
+/* Qog'oz sahifa: yengil soya va o'ng chetida varaqlar qirrasi */
+.qogoz-sahifa {
+  box-shadow:
+    0 1px 0 rgb(0 0 0 / 0.04),
+    0 18px 40px -18px rgb(0 0 0 / 0.5),
+    3px 3px 0 -1px rgb(255 255 255 / 0.9),
+    4px 4px 0 -1px rgb(0 0 0 / 0.08),
+    6px 6px 0 -2px rgb(255 255 255 / 0.85),
+    7px 7px 0 -2px rgb(0 0 0 / 0.07);
+}
+
+/* Kitob muqovasi: chapda muqova bukilgan joyi, o'ngda varaqlar soyasi */
+.muqova {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px 5px 5px 2px;
+  box-shadow:
+    0 1px 1px rgb(0 0 0 / 0.15),
+    0 12px 22px -8px rgb(0 0 0 / 0.35);
+}
+.muqova::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 0.22) 0,
+    rgb(255 255 255 / 0.2) 3.5%,
+    rgb(0 0 0 / 0.1) 6.5%,
+    transparent 11%,
+    transparent 96%,
+    rgb(0 0 0 / 0.12) 100%
+  );
+}
+
+/* Xatcho'p — muqova tepasidan osilib turadigan lenta */
+.xatchop {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 7px), 0 100%);
+}
+
+/* Yashil banner ustidagi miltillovchi yulduzlar (ichki sahifa sarlavhalari) */
+.nur {
+  display: none;
+}
+.yulduz {
+  position: absolute;
+  color: #fff;
+  animation: jimir var(--d, 3.4s) ease-in-out var(--dl, 0s) infinite;
+}
+@keyframes jimir {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1) rotate(18deg);
+  }
+}
+.bor-chizgi {
+  position: absolute;
+  pointer-events: none;
+  fill: none;
+  stroke: rgb(255 255 255 / 0.18);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* O'qish taqvimi: bitta rang, ochdan to'qqa (0 = o'qilmagan kun) */
+.taqvim [data-l="0"] {
+  background: var(--muted);
+}
+.taqvim [data-l="1"] {
+  background: #b8e3c9;
+}
+.taqvim [data-l="2"] {
+  background: #5cbf86;
+}
+.taqvim [data-l="3"] {
+  background: #19733f;
+}
+.dark .taqvim [data-l="1"] {
+  background: #1d4a31;
+}
+.dark .taqvim [data-l="2"] {
+  background: #23a35c;
+}
+.dark .taqvim [data-l="3"] {
+  background: #3ccf7f;
+}
+
+/* Nishon yaltirashi — qo'lga kiritilgan medal ustidan o'tadigan nur */
+.yaltiroq {
+  position: relative;
+  overflow: hidden;
+}
+.yaltiroq::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.55) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: yaltiroq 4.5s ease-in-out var(--dl, 0s) infinite;
+}
+@keyframes yaltiroq {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  80%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   html {
-    @apply font-sans;
+    scroll-behavior: auto;
+  }
+  .tasma-ichi {
+    animation: none;
+  }
+  .tasma {
+    overflow-x: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

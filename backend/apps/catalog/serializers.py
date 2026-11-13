@@ -87,6 +87,22 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ("public_id", "username", "created_at")
 
 
+class RecentReviewSerializer(serializers.ModelSerializer):
+    """Bosh sahifadagi "O'quvchilar fikri" uchun: sharh + kitob nomi."""
+
+    name = serializers.SerializerMethodField()
+    book_title = serializers.CharField(source="book.title", read_only=True)
+    book_slug = serializers.CharField(source="book.slug", read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ("public_id", "name", "rating", "body", "book_title", "book_slug", "created_at")
+
+    def get_name(self, obj):
+        # Familiya ochilmaydi — faqat ism (yoki login)
+        return obj.user.first_name or obj.user.username
+
+
 class ReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review

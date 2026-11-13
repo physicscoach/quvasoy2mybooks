@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <pattern id="gisht" width="72" height="40" patternUnits="userSpaceOnUse">
+      <rect width="72" height="40" fill="#eeeeee"/>
+      <path d="M0 1h72M0 21h72M1 1v20M37 21v20" fill="none" stroke="#000" stroke-opacity=".05" stroke-width="2"/>
+    </pattern>
+    <linearGradient id="yashil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#219150"/><stop offset="1" stop-color="#19733f"/>
+    </linearGradient>
+    <filter id="soya" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-opacity=".25"/>
+    </filter>
+  </defs>
+  <rect width="560" height="1000" fill="url(#gisht)"/>
+  <rect width="560" height="170" fill="url(#yashil)"/>
+  <text x="280" y="92" text-anchor="middle" font-family="Poppins, Segoe UI, sans-serif" font-size="34" font-weight="600" fill="#fff">Elektron kutubxona</text>
+  <text x="280" y="128" text-anchor="middle" font-family="Poppins, Segoe UI, sans-serif" font-size="18" fill="#e7f5ed">Kutubxonachi boshqaruv paneli</text>
+
+  <g filter="url(#soya)">
+    <rect x="80" y="430" width="118" height="165" rx="5" fill="#ffc940"/>
+    <rect x="80" y="430" width="11" height="165" fill="#d99a00"/>
+    <rect x="104" y="456" width="74" height="9" rx="4.5" fill="#3a1d00" opacity=".8"/>
+    <rect x="104" y="474" width="50" height="7" rx="3.5" fill="#3a1d00" opacity=".5"/>
+    <circle cx="140" cy="545" r="28" fill="#fff" opacity=".55"/>
+
+    <rect x="221" y="410" width="118" height="185" rx="5" fill="#219150"/>
+    <rect x="221" y="410" width="11" height="185" fill="#19733f"/>
+    <rect x="245" y="438" width="74" height="9" rx="4.5" fill="#fff" opacity=".9"/>
+    <rect x="245" y="456" width="46" height="7" rx="3.5" fill="#fff" opacity=".6"/>
+    <g fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3">
+      <polygon points="280,500 305,511 316,536 305,561 280,572 255,561 244,536 255,511"/>
+      <polygon points="280,515 295,521 302,536 295,551 280,557 265,551 258,536 265,521"/>
+    </g>
+
+    <rect x="362" y="440" width="118" height="155" rx="5" fill="#7c5cff"/>
+    <rect x="362" y="440" width="11" height="155" fill="#5b3fd6"/>
+    <rect x="386" y="466" width="74" height="9" rx="4.5" fill="#fff" opacity=".9"/>
+    <circle cx="433" cy="545" r="24" fill="#fff" opacity=".85"/>
+    <circle cx="422" cy="536" r="22" fill="#7c5cff"/>
+  </g>
+
+  <g transform="translate(375 336) scale(0.95)">
+    <ellipse cx="50" cy="72" rx="34" ry="38" fill="#8a5a3b"/>
+    <ellipse cx="50" cy="82" rx="22" ry="25" fill="#e9c9a1"/>
+    <path d="M17 66q-6 22 8 36q2-18-8-36zM83 66q6 22-8 36q-2-18 8-36z" fill="#6f4529"/>
+    <circle cx="36" cy="50" r="14" fill="#fff"/><circle cx="64" cy="50" r="14" fill="#fff"/>
+    <circle cx="38" cy="51" r="6.5" fill="#26302b"/><circle cx="62" cy="51" r="6.5" fill="#26302b"/>
+    <circle cx="36" cy="50" r="15" fill="none" stroke="#219150" stroke-width="3"/>
+    <circle cx="64" cy="50" r="15" fill="none" stroke="#219150" stroke-width="3"/>
+    <path d="M45 61l5 9 5-9z" fill="#ffb21f"/>
+    <path d="M50 8L16 21l34 12 34-12z" fill="#2d3436"/>
+    <path d="M30 26v9q20 9 40 0v-9l-20 7z" fill="#3d4648"/>
+    <path d="M80 22v14" stroke="#ffc940" stroke-width="2"/><circle cx="80" cy="38" r="3" fill="#ffc940"/>
+  </g>
+
+  <rect x="50" y="595" width="460" height="16" rx="3" fill="#fff"/>
+  <rect x="50" y="609" width="460" height="4" fill="#d6d6d6"/>
+  <rect x="130" y="613" width="13" height="20" rx="3" fill="#8a8a8a"/>
+  <rect x="417" y="613" width="13" height="20" rx="3" fill="#8a8a8a"/>
+  <ellipse cx="280" cy="662" rx="210" ry="12" fill="#000" opacity=".06"/>
+
+  <g font-family="Poppins, Segoe UI, sans-serif" font-size="19" fill="#333">
+    <circle cx="86" cy="760" r="7" fill="#219150"/><text x="104" y="767">Kitob yuklash va katalogga chiqarish</text>
+    <circle cx="86" cy="806" r="7" fill="#219150"/><text x="104" y="813">O'quvchilarga login va parol berish</text>
+    <circle cx="86" cy="852" r="7" fill="#219150"/><text x="104" y="859">Test tuzish, sharhlarni tekshirish</text>
+  </g>
+</svg>

@@ -1,0 +1,37 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <p class="mb-6 text-font-default-light dark:text-font-default-dark">
+        Sinf jurnalidan ismlarni nusxalab qo'ying. Har bir o'quvchiga login va parolni tizim o'zi yaratadi —
+        keyingi sahifada ularni chop etib, o'quvchilarga tarqatasiz.
+    </p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-5">
+                <label for="{{ field.id_for_label }}" class="block font-semibold mb-2 text-font-important-light text-sm dark:text-font-important-dark">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                    <p class="mt-2 text-sm text-font-subtle-light dark:text-font-subtle-dark">{{ field.help_text }}</p>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="flex items-center gap-3">
+            <button type="submit" class="bg-primary-600 border border-transparent font-medium px-4 py-2 rounded-md text-sm text-white">
+                O'quvchilarni qo'shish
+            </button>
+            <a href="{{ changelist_url }}" class="border font-medium px-4 py-2 rounded-md text-sm text-font-default-light dark:border-gray-700 dark:text-font-default-dark">
+                Bekor qilish
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

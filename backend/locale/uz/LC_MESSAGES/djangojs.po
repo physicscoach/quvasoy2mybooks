@@ -1,0 +1,233 @@
+# Elektron kutubxona — Django admin va unfold uchun yetishmagan o'zbekcha tarjimalar.
+# O'zgartirgach:  python locale/yig.py   (so'ng serverni qayta yoqing)
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: uz\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Available %s"
+msgstr "Mavjud: %s"
+
+msgid "Filter"
+msgstr "Qidirish"
+
+msgid "Choose all"
+msgstr "Hammasini tanlash"
+
+msgid "Choose"
+msgstr "Tanlash"
+
+msgid "Remove"
+msgstr "Olib tashlash"
+
+msgid "Chosen %s"
+msgstr "Tanlangan: %s"
+
+msgid "Remove all"
+msgstr "Hammasini olib tashlash"
+
+msgid "%(sel)s of %(cnt)s selected"
+msgid_plural "%(sel)s of %(cnt)s selected"
+msgstr[0] "%(cnt)s tadan %(sel)s tasi tanlandi"
+
+msgid "You have unsaved changes on individual editable fields. If you run an action, your unsaved changes will be lost."
+msgstr "Saqlanmagan o'zgarishlar bor. Amalni bajarsangiz, ular yo'qoladi."
+
+msgid "Now"
+msgstr "Hozir"
+
+msgid "Midnight"
+msgstr "Yarim tun"
+
+msgid "6 a.m."
+msgstr "Ertalab 6"
+
+msgid "Noon"
+msgstr "Tush"
+
+msgid "6 p.m."
+msgstr "Kechki 6"
+
+msgid "Choose a Time"
+msgstr "Vaqtni tanlang"
+
+msgid "Choose a time"
+msgstr "Vaqtni tanlang"
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "Today"
+msgstr "Bugun"
+
+msgid "Choose a Date"
+msgstr "Sanani tanlang"
+
+msgid "Yesterday"
+msgstr "Kecha"
+
+msgid "Tomorrow"
+msgstr "Ertaga"
+
+msgid "January"
+msgstr "Yanvar"
+
+msgid "February"
+msgstr "Fevral"
+
+msgid "March"
+msgstr "Mart"
+
+msgid "April"
+msgstr "Aprel"
+
+msgid "May"
+msgstr "May"
+
+msgid "June"
+msgstr "Iyun"
+
+msgid "July"
+msgstr "Iyul"
+
+msgid "August"
+msgstr "Avgust"
+
+msgid "September"
+msgstr "Sentabr"
+
+msgid "October"
+msgstr "Oktabr"
+
+msgid "November"
+msgstr "Noyabr"
+
+msgid "December"
+msgstr "Dekabr"
+
+msgctxt "abbrev. month January"
+msgid "Jan"
+msgstr "Yan"
+
+msgctxt "abbrev. month February"
+msgid "Feb"
+msgstr "Fev"
+
+msgctxt "abbrev. month March"
+msgid "Mar"
+msgstr "Mar"
+
+msgctxt "abbrev. month April"
+msgid "Apr"
+msgstr "Apr"
+
+msgctxt "abbrev. month May"
+msgid "May"
+msgstr "May"
+
+msgctxt "abbrev. month June"
+msgid "Jun"
+msgstr "Iyn"
+
+msgctxt "abbrev. month July"
+msgid "Jul"
+msgstr "Iyl"
+
+msgctxt "abbrev. month August"
+msgid "Aug"
+msgstr "Avg"
+
+msgctxt "abbrev. month September"
+msgid "Sep"
+msgstr "Sen"
+
+msgctxt "abbrev. month October"
+msgid "Oct"
+msgstr "Okt"
+
+msgctxt "abbrev. month November"
+msgid "Nov"
+msgstr "Noy"
+
+msgctxt "abbrev. month December"
+msgid "Dec"
+msgstr "Dek"
+
+msgid "Sunday"
+msgstr "Yakshanba"
+
+msgid "Monday"
+msgstr "Dushanba"
+
+msgid "Tuesday"
+msgstr "Seshanba"
+
+msgid "Wednesday"
+msgstr "Chorshanba"
+
+msgid "Thursday"
+msgstr "Payshanba"
+
+msgid "Friday"
+msgstr "Juma"
+
+msgid "Saturday"
+msgstr "Shanba"
+
+msgctxt "abbrev. day Sunday"
+msgid "Sun"
+msgstr "Yak"
+
+msgctxt "abbrev. day Monday"
+msgid "Mon"
+msgstr "Dush"
+
+msgctxt "abbrev. day Tuesday"
+msgid "Tue"
+msgstr "Sesh"
+
+msgctxt "abbrev. day Wednesday"
+msgid "Wed"
+msgstr "Chor"
+
+msgctxt "abbrev. day Thursday"
+msgid "Thur"
+msgstr "Pay"
+
+msgctxt "abbrev. day Friday"
+msgid "Fri"
+msgstr "Jum"
+
+msgctxt "abbrev. day Saturday"
+msgid "Sat"
+msgstr "Shan"
+
+msgctxt "one letter Sunday"
+msgid "S"
+msgstr "Y"
+
+msgctxt "one letter Monday"
+msgid "M"
+msgstr "D"
+
+msgctxt "one letter Tuesday"
+msgid "T"
+msgstr "S"
+
+msgctxt "one letter Wednesday"
+msgid "W"
+msgstr "Ch"
+
+msgctxt "one letter Thursday"
+msgid "T"
+msgstr "P"
+
+msgctxt "one letter Friday"
+msgid "F"
+msgstr "J"
+
+msgctxt "one letter Saturday"
+msgid "S"
+msgstr "Sh"

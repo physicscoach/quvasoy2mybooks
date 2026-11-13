@@ -170,3 +170,25 @@ class ProgressDetailView(APIView):
             ReadingProgress.objects.select_related("book"), user=request.user, book__public_id=book_public_id,
         )
         return Response(ReadingProgressSerializer(progress).data)
+
+
+class ActivityListView(APIView):
+    """Oxirgi kunlardagi kunlik faollik - profil sahifasidagi o'qish taqvimi uchun."""
+
+    permission_classes = [IsAuthenticated]
+    MAX_DAYS = 371
+
+    def get(self, request):
+        from datetime import timedelta
+
+        from .models import DailyActivity
+        from .serializers import DailyActivitySerializer
+
+        try:
+            days = int(request.query_params.get("days", 119))
+        except ValueError:
+            days = 119
+        days = max(1, min(days, self.MAX_DAYS))
+        since = timezone.localdate() - timedelta(days=days - 1)
+        qs = DailyActivity.objects.filter(user=request.user, activity_date__gte=since).order_by("activity_date")
+        return Response(DailyActivitySerializer(qs, many=True).data)

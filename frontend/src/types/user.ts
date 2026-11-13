@@ -19,9 +19,12 @@ export interface ReaderStats {
     next_level_min_points: number | null;
   };
   streak_days: number;
+  longest_streak?: number;
   last_activity_date: string | null; // ISO sana
 }
 
 export interface Me extends User {
   stats: ReaderStats;
+  /** Boshqaruv paneli (Django admin) manzili — faqat kutubxonachi va administratorga */
+  admin_url?: string | null;
 }

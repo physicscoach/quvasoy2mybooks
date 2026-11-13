@@ -21,6 +21,9 @@ export default function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+// /api va /media proxy'dan o'tmaydi: proxy so'rov tanasini xotirada 10 MB gacha
+// bufer qiladi va katta PDF yuklashni buzadi. Ular rewrites orqali to'g'ridan-to'g'ri
+// backend'ga ketadi (prod'da esa Caddy yo'naltiradi).
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/|media/|_next/static|_next/image|favicon.ico).*)"],
 };

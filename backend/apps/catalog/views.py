@@ -58,6 +58,29 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.filter(is_active=True).order_by("sort_order", "name")
 
 
+class RecentReviewsView(APIView):
+    """GET: so'nggi tasdiqlangan, matnli sharhlar (bosh sahifa uchun, ochiq)."""
+
+    permission_classes = [AllowAny]
+    LIMIT = 9
+
+    def get(self, request):
+        from rest_framework.response import Response
+
+        from .serializers import RecentReviewSerializer
+
+        reviews = (
+            Review.objects.filter(
+                moderation_status=Review.ModerationStatus.APPROVED,
+                book__status=Book.Status.PUBLISHED,
+            )
+            .exclude(body="")
+            .select_related("user", "book")
+            .order_by("-created_at")[: self.LIMIT]
+        )
+        return Response(RecentReviewSerializer(reviews, many=True).data)
+
+
 class BookReviewsView(APIView):
     """GET: kitobning tasdiqlangan sharhlari. POST: sharh yozish (faqat tugatgan)."""
 

@@ -1,30 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Document, Page, pdfjs } from "react-pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Minus,
-  Plus,
-  ScrollText,
-  FileText as PageIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ChevronLeft, ChevronRight, FileText as PageIcon, Minus, Plus, ScrollText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useReaderSettingsStore } from "@/store/readerSettingsStore";
+import { readerCssVars } from "@/components/reader/readerThemes";
+import {
+  DockButton,
+  DockDivider,
+  EdgeNav,
+  FinishCard,
+  PageSlider,
+  ReaderDock,
+  ReaderLoading,
+} from "@/components/reader/ReaderChrome";
 
-// PDF.js worker'ni CDN'dan, o'rnatilgan pdfjs-dist versiyasiga mos ulaymiz.
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// PDF.js worker loyiha bilan birga yig'iladi — tashqi CDN'ga bog'liq emas,
+// internet sust bo'lsa ham kitob ochiladi.
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
-const THEME_CLASSES: Record<string, string> = {
-  light: "bg-white",
-  dark: "bg-neutral-900 invert-[.92] hue-rotate-180",
-  sepia: "bg-[#f4ecd8]",
-};
+// 100% masshtabdagi sahifaning eng katta eni (katta ekranda sahifa cho'zilib ketmasin)
+const BASE_PAGE_WIDTH = 820;
+const SWIPE_MIN_PX = 60;
 
 interface PdfReaderProps {
   fileUrl: string;
@@ -33,40 +36,41 @@ interface PdfReaderProps {
   onDocumentLoad?: (numPages: number) => void;
 }
 
-export default function PdfReader({
-  fileUrl,
-  initialPage = 1,
-  onPageChange,
-  onDocumentLoad,
-}: PdfReaderProps) {
+export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDocumentLoad }: PdfReaderProps) {
+  const router = useRouter();
   const { zoom, theme, pageMode, setZoom, setPageMode } = useReaderSettingsStore();
 
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [pageInput, setPageInput] = useState(String(initialPage));
+  const [sliderPage, setSliderPage] = useState<number | null>(null);
+  const [direction, setDirection] = useState<"oldinga" | "orqaga">("oldinga");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [containerWidth, setContainerWidth] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onPageChangeRef = useRef(onPageChange);
 
   useEffect(() => {
     onPageChangeRef.current = onPageChange;
   });
 
-  const updatePage = useCallback((page: number) => {
+  const updatePage = useCallback((page: number, prev: number) => {
+    setDirection(page >= prev ? "oldinga" : "orqaga");
     setCurrentPage(page);
     setPageInput(String(page));
+    setSliderPage(null);
     onPageChangeRef.current?.(page);
+    containerRef.current?.scrollTo({ top: 0 });
   }, []);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width ?? 0;
-      setContainerWidth(width);
+      setContainerWidth(entries[0]?.contentRect.width ?? 0);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -87,17 +91,29 @@ export default function PdfReader({
   );
 
   const handleLoadError = useCallback(() => {
-    setLoadError("Faylni yuklab bo'lmadi. Internet aloqasini tekshiring.");
+    setLoadError("Kitob yuklanmadi. Internetni tekshirib, sahifani yangilang.");
   }, []);
 
   const goToPage = useCallback(
     (page: number) => {
       if (!numPages) return;
       const clamped = Math.min(Math.max(page, 1), numPages);
-      updatePage(clamped);
+      if (clamped !== currentPage) updatePage(clamped, currentPage);
+      else setSliderPage(null);
     },
-    [numPages, updatePage]
+    [numPages, currentPage, updatePage]
   );
+
+  // Klaviatura: ← → va PageUp/PageDown bilan varaqlash
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === "ArrowRight" || e.key === "PageDown") goToPage(currentPage + 1);
+      if (e.key === "ArrowLeft" || e.key === "PageUp") goToPage(currentPage - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [currentPage, goToPage]);
 
   const handlePageInputSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,149 +122,186 @@ export default function PdfReader({
     else setPageInput(String(currentPage));
   };
 
-  const pageWidth = containerWidth > 0 ? Math.floor((containerWidth * zoom) / 100) : undefined;
+  // Telefonda barmoq bilan surib varaqlash (faqat sahifa rejimida)
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start || pageMode !== "page") return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    goToPage(currentPage + (dx < 0 ? 1 : -1));
+  };
+
+  const fitWidth = Math.min(Math.max(containerWidth - 24, 0), BASE_PAGE_WIDTH);
+  const pageWidth = fitWidth > 0 ? Math.floor((fitWidth * zoom) / 100) : undefined;
+  const shownPage = sliderPage ?? currentPage;
+  const percent = numPages ? Math.round((shownPage / numPages) * 100) : 0;
+  const isLastPage = !!numPages && currentPage >= numPages;
 
   // Katta fayl uchun scroll rejimida ham faqat joriy sahifa atrofidagi
-  // oynani (currentPage ± 1) haqiqiy render qilamiz, qolganiga bo'sh joy qo'yamiz.
+  // oynani (currentPage ± 1) haqiqiy render qilamiz.
   const scrollWindow = 1;
   const pagesToRender =
     pageMode === "scroll" && numPages
-      ? Array.from({ length: numPages }, (_, i) => i + 1).filter(
-          (p) => Math.abs(p - currentPage) <= scrollWindow
-        )
+      ? Array.from({ length: numPages }, (_, i) => i + 1).filter((p) => Math.abs(p - currentPage) <= scrollWindow)
       : [currentPage];
 
   return (
     <div
-      className={cn(
-        "flex h-full w-full flex-col overflow-hidden",
-        THEME_CLASSES[theme] ?? THEME_CLASSES.light
-      )}
+      className="relative h-full w-full overflow-hidden"
+      style={readerCssVars(theme)}
       onContextMenu={(e) => e.preventDefault()}
     >
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto"
+        className="h-full overflow-auto [perspective:1600px]"
         onClick={() => setControlsVisible((v) => !v)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
-        <div className="mx-auto flex min-h-full w-full max-w-full flex-col items-center gap-4 px-2 py-4">
+        <div className="mx-auto flex min-h-full w-fit min-w-full flex-col items-center gap-5 px-3 pt-4 pb-40">
           <Document
             file={fileUrl}
             onLoadSuccess={handleLoadSuccess}
             onLoadError={handleLoadError}
-            loading={
-              <div className="flex h-64 items-center justify-center gap-2 text-muted-foreground">
-                <Loader2 className="size-5 animate-spin" />
-                Hujjat yuklanmoqda...
-              </div>
-            }
+            loading={<ReaderLoading />}
             error={
-              <div className="flex h-64 items-center justify-center text-sm text-destructive">
-                {loadError ?? "Faylni ochib bo'lmadi."}
+              <div className="flex h-64 max-w-xs items-center justify-center text-center text-sm font-semibold text-olov">
+                {loadError ?? "Kitob ochilmadi. Sahifani yangilab ko'ring."}
               </div>
             }
-            noData={
-              <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
-                Fayl topilmadi.
-              </div>
-            }
+            noData={<div className="flex h-64 items-center justify-center text-sm opacity-70">Fayl topilmadi.</div>}
             suspense={false}
           >
             {numPages
               ? pagesToRender.map((p) => (
-                  <div key={p} onClick={(e) => e.stopPropagation()} className="mb-2">
+                  <div
+                    key={p}
+                    onClick={(e) => e.stopPropagation()}
+                    className={cn(
+                      "qogoz-sahifa relative overflow-hidden rounded-md bg-white",
+                      pageMode === "page" && (direction === "oldinga" ? "sahifa-oldinga" : "sahifa-orqaga"),
+                      theme === "dark" && "invert-[.9] hue-rotate-180",
+                      theme === "sepia" && "sepia-[.35]"
+                    )}
+                  >
                     <Page
                       pageNumber={p}
                       width={pageWidth}
                       renderTextLayer={false}
                       renderAnnotationLayer={false}
                       loading={
-                        <div className="flex h-96 items-center justify-center text-muted-foreground">
-                          <Loader2 className="size-5 animate-spin" />
+                        <div
+                          className="flex aspect-[1/1.414] items-center justify-center bg-white"
+                          style={{ width: pageWidth ?? 320 }}
+                        >
+                          <span className="size-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
                         </div>
                       }
                     />
+                    {pageMode === "scroll" && (
+                      <span className="absolute right-2 bottom-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white tabular-nums">
+                        {p}
+                      </span>
+                    )}
                   </div>
                 ))
               : null}
           </Document>
+
+          {isLastPage && pageMode === "page" && <FinishCard onBack={() => router.push("/books")} />}
         </div>
       </div>
 
-      {/* Boshqaruv paneli — mobil'da tegib yashirish/ko'rsatish mumkin */}
-      <div
-        className={cn(
-          "flex flex-wrap items-center justify-center gap-2 border-t border-border bg-background/95 px-2 py-2 backdrop-blur transition-transform sm:flex",
-          controlsVisible ? "flex" : "hidden sm:flex"
-        )}
-      >
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          disabled={currentPage <= 1}
-          onClick={() => goToPage(currentPage - 1)}
-          aria-label="Oldingi sahifa"
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
+      {numPages && pageMode === "page" ? (
+        <EdgeNav
+          onPrev={() => goToPage(currentPage - 1)}
+          onNext={() => goToPage(currentPage + 1)}
+          canPrev={currentPage > 1}
+          canNext={currentPage < numPages}
+        />
+      ) : null}
 
-        <form onSubmit={handlePageInputSubmit} className="flex items-center gap-1">
-          <Input
-            value={pageInput}
-            onChange={(e) => setPageInput(e.target.value)}
-            className="h-7 w-12 text-center text-xs"
-            inputMode="numeric"
+      <ReaderDock visible={controlsVisible}>
+        <div className="flex items-center gap-3 px-1">
+          <PageSlider
+            value={shownPage}
+            max={numPages ?? 1}
+            label="Sahifaga o'tish"
+            onPreview={setSliderPage}
+            onCommit={goToPage}
           />
-          <span className="text-xs text-muted-foreground">/ {numPages ?? "…"}</span>
-        </form>
+          <span className="shrink-0 rounded-full bg-primary/12 px-2.5 py-0.5 text-xs font-bold text-primary tabular-nums">
+            {percent}%
+          </span>
+        </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          disabled={!numPages || currentPage >= numPages}
-          onClick={() => goToPage(currentPage + 1)}
-          aria-label="Keyingi sahifa"
-        >
-          <ChevronRight className="size-4" />
-        </Button>
+        <div className="mt-1.5 flex items-center justify-between gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <DockButton
+              disabled={currentPage <= 1}
+              onClick={() => goToPage(currentPage - 1)}
+              aria-label="Oldingi sahifa"
+            >
+              <ChevronLeft className="size-5" />
+            </DockButton>
 
-        <div className="mx-1 h-5 w-px bg-border" />
+            <form onSubmit={handlePageInputSubmit} className="flex items-center gap-1">
+              <input
+                value={sliderPage != null ? String(sliderPage) : pageInput}
+                onChange={(e) => setPageInput(e.target.value)}
+                onBlur={handlePageInputSubmit}
+                className="h-9 w-11 rounded-full sm:w-12 border border-[var(--r-border)] bg-transparent text-center text-sm font-bold tabular-nums outline-none focus:border-primary"
+                inputMode="numeric"
+                aria-label="Sahifa raqami"
+              />
+              <span className="text-sm font-semibold whitespace-nowrap tabular-nums opacity-60">/ {numPages ?? "…"}</span>
+            </form>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          onClick={() => setZoom(zoom - 10)}
-          aria-label="Kichraytirish"
-        >
-          <Minus className="size-4" />
-        </Button>
-        <span className="w-10 text-center text-xs text-muted-foreground">{zoom}%</span>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          onClick={() => setZoom(zoom + 10)}
-          aria-label="Kattalashtirish"
-        >
-          <Plus className="size-4" />
-        </Button>
+            <DockButton
+              disabled={!numPages || currentPage >= numPages}
+              onClick={() => goToPage(currentPage + 1)}
+              aria-label="Keyingi sahifa"
+            >
+              <ChevronRight className="size-5" />
+            </DockButton>
+          </div>
 
-        <div className="mx-1 h-5 w-px bg-border" />
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <DockButton onClick={() => setZoom(zoom - 10)} disabled={zoom <= 50} aria-label="Kichraytirish">
+              <Minus className="size-4" />
+            </DockButton>
+            <button
+              type="button"
+              onClick={() => setZoom(100)}
+              className="w-10 rounded-full py-1 text-center text-xs sm:w-11 font-bold tabular-nums hover:bg-[var(--r-hover)]"
+              title="100% ga qaytarish"
+            >
+              {zoom}%
+            </button>
+            <DockButton onClick={() => setZoom(zoom + 10)} disabled={zoom >= 300} aria-label="Kattalashtirish">
+              <Plus className="size-4" />
+            </DockButton>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          onClick={() => setPageMode(pageMode === "page" ? "scroll" : "page")}
-          aria-label="Ko'rinishni almashtirish"
-          title={pageMode === "page" ? "Uzluksiz aylantirish rejimi" : "Sahifa rejimi"}
-        >
-          {pageMode === "page" ? <ScrollText className="size-4" /> : <PageIcon className="size-4" />}
-        </Button>
-      </div>
+            <DockDivider />
+
+            <DockButton
+              onClick={() => setPageMode(pageMode === "page" ? "scroll" : "page")}
+              active={pageMode === "scroll"}
+              aria-label={pageMode === "page" ? "Uzluksiz aylantirish rejimiga o'tish" : "Sahifa rejimiga o'tish"}
+              title={pageMode === "page" ? "Uzluksiz aylantirish" : "Sahifama-sahifa"}
+            >
+              {pageMode === "page" ? <ScrollText className="size-4" /> : <PageIcon className="size-4" />}
+            </DockButton>
+          </div>
+        </div>
+      </ReaderDock>
     </div>
   );
 }

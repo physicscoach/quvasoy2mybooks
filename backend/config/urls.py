@@ -4,11 +4,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 ADMIN_PATH = os.environ.get("ADMIN_PATH", "admin")
 
 urlpatterns = [
+    # APPEND_SLASH=False (API slash'siz) — admin'ga slash'siz kirilsa ham ochilsin
+    path(ADMIN_PATH, RedirectView.as_view(url="/" + ADMIN_PATH + "/", permanent=False)),
     path(ADMIN_PATH + "/", admin.site.urls),
     path("api/v1/", include("config.api_urls")),
 ]

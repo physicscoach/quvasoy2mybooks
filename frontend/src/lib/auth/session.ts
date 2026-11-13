@@ -34,6 +34,9 @@ export async function serverApiFetch<T = unknown>(
     headers: {
       "Content-Type": "application/json",
       Cookie: cookieHeader,
+      // Ichki docker tarmog'i (http://web:8000): tashqi so'rov baribir HTTPS
+      // orqali kelgan — Django prod'da https'ga 301 qaytarmasin.
+      "X-Forwarded-Proto": "https",
       ...init.headers,
     },
   });

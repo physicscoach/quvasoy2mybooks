@@ -110,6 +110,14 @@ def process_book_file(book_file_id: int):
         if book.status == Book.Status.DRAFT:
             book.status = Book.Status.READY
             book.save(update_fields=["status", "updated_at"])
+        # Kutubxonachi ikkinchi marta "nashr qilish"ni bosib o'tirmasligi uchun
+        if book.status == Book.Status.READY and book.auto_publish and not book.publish_blockers():
+            from django.utils import timezone
+
+            book.status = Book.Status.PUBLISHED
+            if book.published_at is None:
+                book.published_at = timezone.now()
+            book.save(update_fields=["status", "published_at", "updated_at"])
 
     except Exception as exc:  # noqa: BLE001 - fon vazifasi hech qachon serverni qulatmasligi kerak
         logger.exception("process_book_file xato: %s", exc)

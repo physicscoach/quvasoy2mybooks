@@ -94,7 +94,7 @@ class LoginView(APIView):
         ReaderStats.objects.get_or_create(user=user)
 
         refresh = _issue_tokens_for(user)
-        response = Response(MeSerializer(user).data, status=status.HTTP_200_OK)
+        response = Response(MeSerializer(user, context={"request": request}).data, status=status.HTTP_200_OK)
         return _set_auth_cookies(response, refresh)
 
 
@@ -144,4 +144,4 @@ class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(MeSerializer(request.user).data)
+        return Response(MeSerializer(request.user, context={"request": request}).data)

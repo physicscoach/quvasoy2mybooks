@@ -1,7 +1,7 @@
 """Foydalanuvchi va gamifikatsiya keshi (B ilova 1.1)."""
 import uuid
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 
@@ -27,6 +27,9 @@ class User(AbstractUser):
         help_text="Streak va DailyActivity.date shu zonada hisoblanadi",
     )
     locale = models.CharField("Til", max_length=8, default="uz")
+    class_name = models.CharField(
+        "Sinf", max_length=16, blank=True, default="", help_text="Masalan: 7-A. Bo'sh qoldirish mumkin.",
+    )
     token_version = models.PositiveIntegerField(
         "Token versiyasi", default=0,
         help_text="Oshirilsa — barcha JWT va imzolangan havolalar bekor bo'ladi",
@@ -52,6 +55,29 @@ class User(AbstractUser):
     @property
     def is_admin_role(self):
         return self.role == self.Role.ADMIN
+
+
+class StudentManager(UserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role=User.Role.READER)
+
+
+class Student(User):
+    """O'quvchi — `User` ning kitobxon rolidagi ko'rinishi (alohida jadval emas).
+
+    Admin panelda kutubxonachi uchun sodda "O'quvchilar" bo'limi shu model ustida.
+    """
+
+    objects = StudentManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = "O'quvchi"
+        verbose_name_plural = "O'quvchilar"
+
+    def save(self, *args, **kwargs):
+        self.role = User.Role.READER
+        super().save(*args, **kwargs)
 
 
 class ReaderStats(models.Model):

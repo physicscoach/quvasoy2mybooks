@@ -51,6 +51,17 @@ class CatalogApiTests(TestCase):
 
 
 class IngestionTests(TestCase):
+    def test_auto_publish_puts_book_in_catalog_without_second_step(self):
+        """Admin panelda qo'shilgan kitob (auto_publish) fayl tayyor bo'lishi bilan katalogga chiqadi."""
+        book = Book.objects.create(title="Avto kitob", status=Book.Status.DRAFT, auto_publish=True)
+        bf = BookFile.objects.create(book=book, format="pdf", processing_status="pending")
+        bf.file.save("avto.pdf", ContentFile(make_pdf(2)), save=True)
+
+        process_book_file(bf.pk)
+        book.refresh_from_db()
+        self.assertEqual(book.status, Book.Status.PUBLISHED)
+        self.assertIsNotNone(book.published_at)
+
     def test_pdf_processing_sets_pages_cover_and_ready(self):
         book = Book.objects.create(title="PDF kitob", status=Book.Status.DRAFT)
         bf = BookFile.objects.create(book=book, format="pdf", processing_status="pending")
@@ -181,3 +192,23 @@ class ReviewTests(TestCase):
         Review.objects.create(user=self.user, book=self.book, rating=3, moderation_status="pending")
         resp = self.client.get(f"/api/v1/books/{self.book.slug}/reviews")
         self.assertEqual(len(resp.data), 0)
+
+    def test_recent_reviews_only_approved_with_text(self):
+        from apps.accounts.models import User
+        from apps.catalog.models import Review
+        other = User.objects.create_user(username="ikkinchi", password="Kitob2026xyz", role="reader",
+                                         first_name="Madina", last_name="Karimova")
+        third = User.objects.create_user(username="uchinchi", password="Kitob2026xyz", role="reader")
+        Review.objects.create(user=other, book=self.book, rating=5, body="Juda qiziq ekan",
+                              moderation_status=Review.ModerationStatus.APPROVED)
+        Review.objects.create(user=self.user, book=self.book, rating=4, body="Kutilmoqda",
+                              moderation_status=Review.ModerationStatus.PENDING)
+        Review.objects.create(user=third, book=self.book, rating=5, body="",
+                              moderation_status=Review.ModerationStatus.APPROVED)
+        resp = self.client.get("/api/v1/reviews/recent")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        item = resp.data[0]
+        self.assertEqual(item["name"], "Madina")  # familiya ochilmaydi
+        self.assertEqual(item["book_slug"], self.book.slug)
+        self.assertNotIn("Karimova", str(item))

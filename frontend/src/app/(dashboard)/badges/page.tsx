@@ -1,4 +1,7 @@
 import { serverApiFetch } from "@/lib/auth/session";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Medal, tierLabel } from "@/components/gamification/Medal";
+import { formatDateUz } from "@/lib/utils";
 import type { Badge, UserBadge } from "@/types/gamification";
 
 export const metadata = { title: "Nishonlar — Elektron kutubxona" };
@@ -12,44 +15,62 @@ async function getData() {
   } catch {
     mine = [];
   }
-  return { all, earnedCodes: new Set(mine.map((ub) => ub.badge.code)) };
+  return { all, earned: new Map(mine.map((ub) => [ub.badge.code, ub])) };
 }
 
 export default async function BadgesPage() {
-  const { all, earnedCodes } = await getData();
+  const { all, earned } = await getData();
+  // Olinganlari oldinda
+  const sorted = [...all].sort((a, b) => Number(earned.has(b.code)) - Number(earned.has(a.code)));
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-bold">Nishonlar</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        {earnedCodes.size} / {all.length} nishon qo&apos;lga kiritildi.
-      </p>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-6">
+      <PageHeader
+        title="Nishonlar"
+        description="Har bir nishon — bitta yutuq. Shartini bajarsangiz, o'zi ochiladi."
+        aside={
+          all.length > 0 && (
+            <p className="font-heading text-3xl font-bold tabular-nums">
+              {earned.size}
+              <span className="text-xl font-semibold text-white/70"> / {all.length} ta sizda</span>
+            </p>
+          )
+        }
+      />
 
       {all.length === 0 ? (
-        <div className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground">
-          Hozircha nishonlar mavjud emas.
-        </div>
+        <p className="rounded-md border-2 border-dashed border-border p-8 text-center text-muted-foreground">
+          Nishonlar hali qo&apos;shilmagan. Tez orada shu yerda paydo bo&apos;ladi.
+        </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {all.map((badge) => {
-            const earned = earnedCodes.has(badge.code);
+        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {sorted.map((badge, i) => {
+            const ub = earned.get(badge.code);
             return (
-              <div
+              <li
                 key={badge.code}
-                className={`flex flex-col items-center rounded-lg border p-4 text-center transition ${
-                  earned
-                    ? "border-primary/40 bg-primary/5"
-                    : "border-border bg-muted/30 opacity-60 grayscale"
+                className={`flex flex-col items-center gap-2 rounded-md border p-5 text-center ${
+                  ub ? "border-bor/60 bg-card" : "border-border bg-card/60"
                 }`}
-                title={badge.description}
               >
-                <div className="mb-2 text-4xl">{earned ? badge.icon || "🏅" : "🔒"}</div>
-                <div className="text-sm font-semibold">{badge.name}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{badge.description}</div>
-              </div>
+                <Medal
+                  code={badge.code}
+                  category={badge.category}
+                  tier={badge.tier}
+                  emoji={badge.icon}
+                  earned={!!ub}
+                  index={i}
+                />
+                <h2 className="text-lg leading-tight font-bold">{badge.name}</h2>
+                <p className="text-sm leading-snug text-muted-foreground">{badge.description}</p>
+                <p className="mt-auto pt-1 text-xs font-semibold text-muted-foreground">
+                  {ub ? `${formatDateUz(ub.awarded_at)} da olingan` : `${tierLabel(badge.tier)} nishon`}
+                  {badge.points_reward > 0 && !ub && ` · +${badge.points_reward} XP`}
+                </p>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
     </div>
   );

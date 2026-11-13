@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { AuthShell } from "@/components/layout/AuthShell";
 import { registerSchema, type RegisterFormValues } from "@/lib/validators/auth.schema";
 import { register as registerRequest, login } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -58,7 +58,7 @@ export default function RegisterPage() {
       const me = await login({ login: values.username, password: values.password });
       setUser(me);
       queryClient.setQueryData(["me"], me);
-      toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz");
+      toast.success("Hisob ochildi. Xush kelibsiz!");
       router.push("/books");
       router.refresh();
     } catch (err) {
@@ -83,16 +83,10 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Ro&apos;yxatdan o&apos;tish</CardTitle>
-          <CardDescription>Yangi hisob yarating va kitob o&apos;qishni boshlang.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <AuthShell title="Hisob ochish" description="Bir daqiqada hisob oching va birinchi kitobingizni boshlang.">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="first_name"
@@ -170,19 +164,17 @@ export default function RegisterPage() {
                 )}
               />
               {serverError && <p className="text-sm text-destructive">{serverError}</p>}
-              <Button type="submit" disabled={form.formState.isSubmitting} className="mt-1">
-                {form.formState.isSubmitting ? "Yuborilmoqda..." : "Ro'yxatdan o'tish"}
+              <Button type="submit" disabled={form.formState.isSubmitting} size="lg" className="mt-1">
+                {form.formState.isSubmitting ? "Hisob ochilmoqda..." : "Hisob ochish"}
               </Button>
             </form>
           </Form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Hisobingiz bormi?{" "}
-            <Link href="/login" className="font-medium text-primary hover:underline">
+            <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
               Kiring
             </Link>
           </p>
-        </CardContent>
-      </Card>
-    </div>
+    </AuthShell>
   );
 }

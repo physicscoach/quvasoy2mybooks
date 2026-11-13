@@ -53,11 +53,20 @@ class CloseSessionSerializer(serializers.Serializer):
 
 class ReadingProgressSerializer(serializers.ModelSerializer):
     book_title = serializers.CharField(source="book.title", read_only=True)
+    # Frontend "davom ettirish" kartasi va muqovadagi xatcho'p uchun
+    book_public_id = serializers.UUIDField(source="book.public_id", read_only=True)
+    book_slug = serializers.CharField(source="book.slug", read_only=True)
+    book_page_count = serializers.IntegerField(source="book.page_count", read_only=True)
+    book_cover_url = serializers.SerializerMethodField()
+
+    def get_book_cover_url(self, obj):
+        return obj.book.cover.url if obj.book.cover else None
 
     class Meta:
         model = ReadingProgress
         fields = (
-            "book", "book_title", "status", "current_page", "max_page_reached",
+            "book", "book_title", "book_public_id", "book_slug", "book_page_count",
+            "book_cover_url", "status", "current_page", "max_page_reached",
             "current_locator", "percent", "total_active_seconds", "sessions_count",
             "started_at", "last_read_at", "completed_at", "is_favorite",
         )

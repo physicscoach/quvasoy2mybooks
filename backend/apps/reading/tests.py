@@ -143,6 +143,35 @@ class SessionViewTests(TestCase):
         active = ReadingSession.objects.filter(user__username="u1", ended_at__isnull=True).count()
         self.assertEqual(active, 1)  # faqat bitta aktiv seans
 
+    def test_activity_lists_only_own_recent_days(self):
+        """Faollik taqvimi: faqat o'ziniki va so'ralgan davr ichidagi kunlar qaytadi."""
+        from apps.reading.models import DailyActivity
+
+        me = User.objects.get(username="u1")
+        other = User.objects.create_user(username="u2", password="Kitob2026xyz", role="reader")
+        today = timezone.localdate()
+        DailyActivity.objects.create(user=me, activity_date=today, active_seconds=1500, pages_read=12)
+        DailyActivity.objects.create(user=me, activity_date=today - timedelta(days=200), active_seconds=600)
+        DailyActivity.objects.create(user=other, activity_date=today, active_seconds=900)
+
+        self.assertEqual(self.client.get("/api/v1/reading/activity").status_code, 401)
+        self._login()
+        r = self.client.get("/api/v1/reading/activity?days=30")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual([d["active_seconds"] for d in r.json()], [1500])
+
+    def test_progress_list_exposes_book_links(self):
+        """'Davom ettirish' kartasi uchun progress javobida kitob slug va public_id bor."""
+        from apps.reading.models import ReadingProgress
+
+        me = User.objects.get(username="u1")
+        ReadingProgress.objects.create(user=me, book=self.book, status="reading", current_page=5, percent=10)
+        self._login()
+        row = self.client.get("/api/v1/reading/progress").json()[0]
+        self.assertEqual(row["book_slug"], self.book.slug)
+        self.assertEqual(row["book_public_id"], str(self.book.public_id))
+        self.assertIsNone(row["book_cover_url"])
+
 
 class FlushE2ETests(TestCase):
     """flush_dirty_sessions to'liq zanjiri: heartbeat -> PageCredit -> gamifikatsiya emit."""
