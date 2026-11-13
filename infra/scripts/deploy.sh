@@ -8,6 +8,7 @@ echo ">>> DB backup (migratsiyadan oldin)..."
 bash scripts/backup_db.sh || echo "OGOHLANTIRISH: backup o'tmadi, davom etilmoqda"
 
 echo ">>> Yangi kod tortilmoqda..."
+OLD_HEAD=$(git -C .. rev-parse HEAD)
 git -C .. pull --ff-only
 
 echo ">>> Image'lar yig'ilmoqda (eski versiya shu payt ishlab turadi)..."
@@ -21,6 +22,13 @@ docker compose run --rm web python manage.py collectstatic --noinput
 
 echo ">>> Servislar yangilanmoqda (5-15s uzilish mumkin)..."
 docker compose up -d --remove-orphans
+
+# Caddyfile yakka fayl sifatida ulangan: git pull faylni almashtirganda konteyner eski
+# nusxani ko'rib qoladi -> o'zgargan bo'lsa Caddy qayta ishga tushiriladi
+if git -C .. diff --name-only "$OLD_HEAD" HEAD | grep -q '^infra/Caddyfile$'; then
+  echo ">>> Caddyfile o'zgardi — Caddy qayta ishga tushirilmoqda..."
+  docker compose restart caddy
+fi
 
 echo ">>> Fon vazifalari jadvali (bir marta)..."
 docker compose exec -T web python manage.py setup_schedules || true
