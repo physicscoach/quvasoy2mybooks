@@ -34,11 +34,20 @@ export const READER_THEMES: Record<
   },
 };
 
+/**
+ * Kutubxona fon rasmi ustidagi parda: rasm har mavzuda ko'rinadi, lekin
+ * o'qishga xalaqit bermaydi (sepiya — iliq, tungi — to'q).
+ */
+export const READER_BACKDROP_TINT: Record<ReaderTheme, string> = {
+  light: "rgb(255 255 255 / 0.12)",
+  sepia: "rgb(214 190 140 / 0.45)",
+  dark: "rgb(6 14 11 / 0.84)",
+};
+
 /** Mavzu ranglarini CSS o'zgaruvchilarga aylantiradi (Dock/EdgeNav shulardan foydalanadi). */
 export function readerCssVars(theme: ReaderTheme): React.CSSProperties {
   const c = READER_THEMES[theme] ?? READER_THEMES.light;
   return {
-    backgroundColor: c.bg,
     color: c.ink,
     "--r-bg": c.bg,
     "--r-panel": c.panel,

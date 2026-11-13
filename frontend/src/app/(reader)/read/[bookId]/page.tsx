@@ -14,8 +14,8 @@ import {
 } from "@/lib/api/reading";
 import { useReadingTracker } from "@/hooks/useReadingTracker";
 import { ApiError } from "@/types/api";
-import { READER_THEMES, readerCssVars } from "@/components/reader/readerThemes";
-import { ReaderLoading } from "@/components/reader/ReaderChrome";
+import { READER_BACKDROP_TINT, READER_THEMES, readerCssVars } from "@/components/reader/readerThemes";
+import { ReaderLoading, ReaderOwl } from "@/components/reader/ReaderChrome";
 import { useReaderSettingsStore, type ReaderTheme } from "@/store/readerSettingsStore";
 
 // Reader og'ir (pdfjs) — faqat client'da, lazy yuklanadi.
@@ -171,7 +171,16 @@ export default function ReadPage() {
   }
 
   return (
-    <div className="flex h-dvh w-full flex-col" style={readerCssVars(theme)}>
+    <div className="relative isolate flex h-dvh w-full flex-col" style={readerCssVars(theme)}>
+      {/* Kutubxona sahnasi (Higgsfield, bosh sahifa uslubida) + mavzu pardasi */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" style={{ backgroundColor: colors.bg }}>
+        <div className="absolute inset-0 bg-[url('/rasm/oqish-fon.webp')] bg-cover bg-center" />
+        <div className="absolute inset-0 transition-colors duration-500" style={{ backgroundColor: READER_BACKDROP_TINT[theme] }} />
+      </div>
+
+      {/* Kichik ukki: keng ekranda chap pastki burchakda, javon yonida (keyin pet bo'ladi) */}
+      <ReaderOwl className="absolute bottom-6 left-8 z-10 hidden w-[110px] xl:block 2xl:left-14 2xl:w-[128px]" />
+
       <header className="z-30 shrink-0 px-2 pt-2 sm:px-3">
         <div
           className="mx-auto flex max-w-5xl items-center gap-2 rounded-2xl border border-[var(--r-border)] px-1.5 py-1.5 shadow-[0_10px_30px_-18px_rgb(0_0_0/0.5)] sm:gap-3 sm:px-2"
@@ -185,15 +194,16 @@ export default function ReadPage() {
           >
             <ArrowLeft className="size-5" />
           </button>
+          <ReaderOwl className="-my-2 w-9 shrink-0 xl:hidden" />
 
           <div className="min-w-0 flex-1">
             <p className="truncate font-heading text-[15px] leading-tight font-bold sm:text-base">{title || "Kitob"}</p>
-            <p className="mt-0.5 flex items-center gap-1.5 text-xs font-medium">
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs font-medium whitespace-nowrap">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60" />
                 <span className="relative inline-flex size-2 rounded-full bg-primary" />
               </span>
-              <span className="opacity-70">XP yig&apos;ilmoqda</span>
+              <span className="opacity-70"><span className="hidden sm:inline">XP yig&apos;ilmoqda</span><span className="sm:hidden">XP</span></span>
               {isReady && <SessionTimer />}
             </p>
           </div>
