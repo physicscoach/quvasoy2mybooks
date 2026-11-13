@@ -30,9 +30,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const BASE_PAGE_WIDTH = 820;
 const SWIPE_MIN_PX = 60;
 
-// 1 MB bo'laklar (standart 64 KB): 38 MB kitob ~600 emas, ~40 so'rovda keladi —
-// uzoq serverda har so'rov kechikishi sezilarli. Obyekt doimiy (aks holda react-pdf qayta yuklaydi).
-const PDF_OPTIONS = { rangeChunkSize: 1024 * 1024 };
+// Faqat kerakli sahifalar yuklanadi (disableAutoFetch): 38–52 MB'lik skaner kitobni fonda
+// to'liq tortib maktab internetini band qilmaydi. Bo'lak 512 KB (~2 sahifa skaner).
+// Obyekt doimiy bo'lishi shart (aks holda react-pdf hujjatni qayta yuklaydi).
+const PDF_OPTIONS = { rangeChunkSize: 512 * 1024, disableAutoFetch: true, disableStream: true };
+const PREFETCH_AHEAD = 4; // keyingi shuncha sahifa oldindan tayyorlanadi
 
 interface PdfReaderProps {
   fileUrl: string;
@@ -60,6 +62,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onPageChangeRef = useRef(onPageChange);
+  const pdfRef = useRef<PDFDocumentProxy | null>(null);
 
   useEffect(() => {
     onPageChangeRef.current = onPageChange;
@@ -87,6 +90,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
 
   const handleLoadSuccess = useCallback(
     (pdf: PDFDocumentProxy) => {
+      pdfRef.current = pdf;
       setNumPages(pdf.numPages);
       setLoadError(null);
       pdf
@@ -105,6 +109,29 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     },
     [onDocumentLoad]
   );
+
+  // Keyingi sahifalarni oldindan yuklash: varaqlaganda kutish bo'lmasin (autoFetch o'chiq).
+  // getOperatorList sahifa rasmlarini ham tortadi va worker keshida saqlaydi.
+  useEffect(() => {
+    const pdf = pdfRef.current;
+    if (!pdf || !numPages) return;
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      for (let p = currentPage + 1; p <= Math.min(numPages, currentPage + PREFETCH_AHEAD); p++) {
+        if (cancelled) return;
+        try {
+          const pg = await pdf.getPage(p);
+          await pg.getOperatorList();
+        } catch {
+          return; // tarmoq xatosi — keyingi varaqlashda baribir yuklanadi
+        }
+      }
+    }, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [currentPage, numPages]);
 
   const handleLoadError = useCallback(() => {
     setLoadError("Kitob yuklanmadi. Internetni tekshirib, sahifani yangilang.");

@@ -15,6 +15,7 @@ from unfold.widgets import (
 from .models import Author, Book, BookAuthor, BookCategory, BookFile, Category, Review
 
 MAX_UPLOAD_MB = 200
+HEAVY_FILE_MB = 15  # bundan og'ir faylga ogohlantirish (o'quvchilarda sekin ochiladi)
 LANGUAGES = [("uz", "O'zbekcha"), ("ru", "Ruscha"), ("en", "Inglizcha")]
 
 
@@ -307,7 +308,18 @@ class BookAdmin(ModelAdmin):
             failed = book.files.filter(processing_status=BookFile.ProcessingStatus.FAILED).first()
             if failed:
                 self.message_user(request, f"Fayl qabul qilinmadi: {failed.processing_error}", level=messages.ERROR)
-            elif book.status == Book.Status.PUBLISHED:
+                return
+            if upload.size > HEAVY_FILE_MB * 1024 * 1024:
+                pages = book.files.filter(format=fmt).values_list("page_count", flat=True).first() or 0
+                per_page = f", har sahifa ~{round(upload.size / 1024 / pages)} KB" if pages else ""
+                self.message_user(
+                    request,
+                    f"Diqqat: fayl og'ir ({round(upload.size / 1024 / 1024)} MB{per_page}). O'quvchilarda sekin "
+                    "ochilishi mumkin. Telefonda suratga olingan emas, skaner yoki matnli PDF tavsiya etiladi "
+                    f"(odatda {HEAVY_FILE_MB} MB dan kichik).",
+                    level=messages.WARNING,
+                )
+            if book.status == Book.Status.PUBLISHED:
                 self.message_user(request, "Kitob katalogga chiqdi — o'quvchilar uni ko'ra oladi.")
             elif book.status == Book.Status.READY:
                 self.message_user(request, "Fayl tayyor. Kitobni katalogga chiqarish uchun ro'yxatda uni belgilab, «Katalogga chiqarish»ni tanlang.")
