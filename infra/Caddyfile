@@ -8,7 +8,8 @@
 	default_sni {$DEFAULT_SNI}
 }
 
-{$SITE_ADDRESS} {
+# Sayt qoidalari (domen va IP bloklari uchun umumiy)
+(sayt) {
 	encode zstd gzip
 
 	header {
@@ -67,4 +68,22 @@
 			header_up X-Forwarded-Proto {scheme}
 		}
 	}
+}
+
+# Asosiy domen — Let's Encrypt sertifikati avtomatik (DNS A-yozuvi kerak)
+{$SITE_ADDRESS} {
+	import sayt
+}
+
+# IP orqali kirish — Let's Encrypt qisqa muddatli (shortlived) IP sertifikati;
+# bermasa ichki sertifikatga qaytadi (sayt baribir ishlaydi)
+{$IP_ADDRESS:127.0.0.1} {
+	tls {
+		issuer acme {
+			email {$ACME_EMAIL}
+			profile shortlived
+		}
+		issuer internal
+	}
+	import sayt
 }
