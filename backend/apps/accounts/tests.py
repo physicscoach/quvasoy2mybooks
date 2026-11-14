@@ -99,3 +99,44 @@ class AdminUrlTests(TestCase):
     def test_librarian_gets_admin_url(self):
         data = self._login("nodira", "Kutub2026xyz").data
         self.assertTrue(data["admin_url"].endswith(reverse("admin:index")))
+
+
+@override_settings(STORAGES={
+    **settings.STORAGES,
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+})
+class StudentBulkTests(TestCase):
+    """Kutubxonachi o'quvchilarni ro'yxat bilan qo'shadi (B yo'l)."""
+
+    def setUp(self):
+        self.librarian = User.objects.create_user(
+            "kutub", password=PWD, role=User.Role.LIBRARIAN, is_staff=True, is_superuser=True,
+        )
+        self.client.force_login(self.librarian)
+
+    def test_helpers(self):
+        from apps.accounts.students import clean_line, make_username, split_name
+
+        self.assertEqual(clean_line("12. Aliyev  Sardor"), "Aliyev Sardor")
+        self.assertEqual(clean_line("3)\tKarimova Malika"), "Karimova Malika")
+        self.assertEqual(split_name("Aliyev Sardor Akmal o'g'li"), ("Sardor", "Aliyev"))
+        self.assertEqual(make_username(*split_name("Алиев Шоҳрух")), "shohrux.aliev")
+        self.assertEqual(make_username(*split_name("G'ulomova Mo'tabar")), "motabar.gulomova")
+
+    def test_bulk_add_creates_and_skips_duplicates(self):
+        url = reverse("admin:accounts_student_bulk")
+        names = "1. Aliyev Sardor\n2. Karimova Malika\n\n3. Aliyev Sardor"
+        resp = self.client.post(url, {"class_name": "7-A", "names": names})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.context["rows"]), 2)
+        self.assertEqual(len(resp.context["skipped"]), 1)
+        self.assertContains(resp, "kartochka")
+        sardor = User.objects.get(username="sardor.aliyev")
+        self.assertEqual((sardor.role, sardor.class_name), ("reader", "7-A"))
+        self.assertTrue(hasattr(sardor, "reader_stats"))
+        password = next(r["password"] for r in resp.context["rows"] if r["username"] == "sardor.aliyev")
+        self.assertTrue(sardor.check_password(password))
+        # ikkinchi marta yuborilsa — hech kim qayta yaratilmaydi
+        resp = self.client.post(url, {"class_name": "7-A", "names": names})
+        self.assertEqual(len(resp.context["rows"]), 0)
+        self.assertEqual(User.objects.filter(role="reader").count(), 2)

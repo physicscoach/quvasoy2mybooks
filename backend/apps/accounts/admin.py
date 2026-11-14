@@ -8,7 +8,7 @@ from unfold.decorators import action
 from unfold.widgets import UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget
 
 from .models import ReaderStats, Student, User
-from .students import create_student, reset_password, split_name
+from .students import clean_line, create_student, find_existing, reset_password, split_name
 
 
 @admin.register(User)
@@ -64,7 +64,7 @@ class BulkStudentsForm(forms.Form):
     )
 
     def clean_names(self):
-        lines = [" ".join(line.split()) for line in self.cleaned_data["names"].splitlines()]
+        lines = [clean_line(line) for line in self.cleaned_data["names"].splitlines()]
         lines = [line for line in lines if line]
         if not lines:
             raise forms.ValidationError("Kamida bitta ism yozing.")
@@ -163,8 +163,13 @@ class StudentAdmin(ModelAdmin):
         return redirect(reverse("admin:accounts_student_bulk"))
 
     def _context(self, request, **extra):
+        from django.conf import settings
+
+        site = getattr(settings, "UNFOLD", {}).get("SITE_URL", "/")
+        site_label = site.split("://", 1)[-1].rstrip("/") if "://" in site else ""
         return {
             **self.admin_site.each_context(request),
+            "site_label": site_label,
             "opts": self.model._meta,
             "changelist_url": reverse("admin:accounts_student_changelist"),
             **extra,
@@ -177,14 +182,20 @@ class StudentAdmin(ModelAdmin):
             raise PermissionDenied
         form = BulkStudentsForm(request.POST or None)
         if request.method == "POST" and form.is_valid():
-            rows = []
+            class_name = form.cleaned_data["class_name"]
+            rows, skipped = [], []
             for line in form.cleaned_data["names"]:
                 first, last = split_name(line)
-                student, password = create_student(first, last, form.cleaned_data["class_name"])
-                rows.append({"name": student.get_full_name(), "username": student.username, "password": password})
+                existing = find_existing(first, last, class_name)
+                if existing:
+                    skipped.append({"name": existing.get_full_name(), "username": existing.username})
+                    continue
+                student, password = create_student(first, last, class_name)
+                rows.append({"name": student.get_full_name(), "username": student.username,
+                             "password": password, "class_name": student.class_name})
             return render(request, "admin/accounts/student/credentials.html", self._context(
-                request, title=f"{len(rows)} ta o'quvchi qo'shildi", rows=rows,
-                class_name=form.cleaned_data["class_name"],
+                request, title=f"{len(rows)} ta o'quvchi qo'shildi", rows=rows, skipped=skipped,
+                class_name=class_name,
             ))
         return render(request, "admin/accounts/student/bulk_add.html", self._context(
             request, title="O'quvchilarni ro'yxat bilan qo'shish", form=form,
@@ -193,8 +204,9 @@ class StudentAdmin(ModelAdmin):
     @admin.action(description="Tanlanganlarga yangi parol berish")
     def yangi_parol_berish(self, request, queryset):
         rows = [
-            {"name": s.get_full_name() or s.username, "username": s.username, "password": reset_password(s)}
-            for s in queryset
+            {"name": s.get_full_name() or s.username, "username": s.username,
+             "password": reset_password(s), "class_name": s.class_name}
+            for s in queryset.order_by("class_name", "last_name", "first_name")
         ]
         return render(request, "admin/accounts/student/credentials.html", self._context(
             request, title=f"{len(rows)} ta o'quvchiga yangi parol berildi", rows=rows, class_name="",
