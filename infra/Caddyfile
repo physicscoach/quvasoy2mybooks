@@ -22,7 +22,7 @@
 
 	# Fon rasmlari, ukki va Next optimallashtirgan rasmlar kamdan-kam o'zgaradi:
 	# brauzer 1 kun keshda saqlaydi (Next public/ uchun max-age=0 beradi — har safar qayta so'rardi)
-	@rasmlar path /rasm/* /_next/image*
+	@rasmlar path /rasm/* /_next/image* /pdfjs/*
 	header @rasmlar {
 		defer
 		Cache-Control "public, max-age=86400, stale-while-revalidate=604800"

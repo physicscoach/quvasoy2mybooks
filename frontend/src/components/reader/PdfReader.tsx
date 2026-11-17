@@ -30,11 +30,22 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const BASE_PAGE_WIDTH = 820;
 const SWIPE_MIN_PX = 60;
 
-// Faqat kerakli sahifalar yuklanadi (disableAutoFetch): 38–52 MB'lik skaner kitobni fonda
-// to'liq tortib maktab internetini band qilmaydi. Bo'lak 512 KB (~2 sahifa skaner).
+// Faqat kerakli sahifalar yuklanadi (disableAutoFetch): katta skaner kitobni fonda
+// to'liq tortib maktab internetini band qilmaydi.
+// Bo'lak 128 KB: serverga yo'l sekin (~50 KB/s) — 512 KB'lik bo'lakda birinchi sahifa
+// uchun keraksiz rasmlar ham kelardi (O'tkan kunlar: 27 s -> 128 KB bilan 10 s).
+// wasmUrl: JPEG2000/JBIG2 rasmli kitoblar (masalan, Alkimyogar) shusiz chizilmaydi.
 // Obyekt doimiy bo'lishi shart (aks holda react-pdf hujjatni qayta yuklaydi).
-const PDF_OPTIONS = { rangeChunkSize: 512 * 1024, disableAutoFetch: true, disableStream: true };
-const PREFETCH_AHEAD = 4; // keyingi shuncha sahifa oldindan tayyorlanadi
+const PDF_OPTIONS = {
+  rangeChunkSize: 128 * 1024,
+  disableAutoFetch: true,
+  disableStream: true,
+  wasmUrl: "/pdfjs/wasm/",
+};
+// Ochilishi bilan joriy sahifadan keyingi 10 bet navbat bilan tayyorlanadi; o'quvchi
+// varaqlagan sari oyna siljiydi — doim 10 bet oldinda turadi (butun kitob emas:
+// bir sinf bir vaqtda o'qisa maktab interneti band bo'lmasin).
+const PREFETCH_AHEAD = 10;
 
 interface PdfReaderProps {
   fileUrl: string;
@@ -63,6 +74,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onPageChangeRef = useRef(onPageChange);
   const pdfRef = useRef<PDFDocumentProxy | null>(null);
+  const prefetched = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     onPageChangeRef.current = onPageChange;
@@ -119,14 +131,16 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
     const t = setTimeout(async () => {
       for (let p = currentPage + 1; p <= Math.min(numPages, currentPage + PREFETCH_AHEAD); p++) {
         if (cancelled) return;
+        if (prefetched.current.has(p)) continue;
         try {
           const pg = await pdf.getPage(p);
           await pg.getOperatorList();
+          prefetched.current.add(p);
         } catch {
           return; // tarmoq xatosi — keyingi varaqlashda baribir yuklanadi
         }
       }
-    }, 600);
+    }, 300);
     return () => {
       cancelled = true;
       clearTimeout(t);

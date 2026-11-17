@@ -87,6 +87,11 @@ def process_book_file(book_file_id: int):
                 _mark_failed(book_file, "Fayl turi (magic bytes) format bilan mos emas yoki qollab-quvvatlanmaydi.")
                 return
 
+        # Avval onlayn o'qishga moslab qayta yozamiz — checksum yakuniy fayldan olinsin
+        if fmt == "pdf":
+            _optimize_pdf_in_place(book_file)
+
+        with book_file.file.open("rb") as f:
             checksum = _sha256_of(f)
 
         duplicate = BookFile.objects.filter(sha256=checksum).exclude(pk=book_file.pk).exists()
@@ -122,6 +127,20 @@ def process_book_file(book_file_id: int):
     except Exception as exc:  # noqa: BLE001 - fon vazifasi hech qachon serverni qulatmasligi kerak
         logger.exception("process_book_file xato: %s", exc)
         _mark_failed(book_file, f"Kutilmagan xatolik: {exc}")
+
+
+def _optimize_pdf_in_place(book_file) -> bool:
+    """PDF'ni onlayn o'qishga moslab qayta yozadi (qarang: optimize.py). O'zgarsa True."""
+    from .optimize import optimize_pdf_bytes
+
+    with book_file.file.open("rb") as f:
+        data = f.read()
+    optimized = optimize_pdf_bytes(data)
+    if optimized is None:
+        return False
+    with open(book_file.file.path, "wb") as out:
+        out.write(optimized)
+    return True
 
 
 def _process_pdf(book_file):

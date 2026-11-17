@@ -42,3 +42,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# pdf.js wasm (scripts/copy-pdfjs-wasm.mjs yaratadi)
+/public/pdfjs/

@@ -49,3 +49,51 @@ class BulkImportTests(TestCase):
             call_command("import_books", str(folder))
         # bir xil sarlavha -> o'tkazib yuboriladi (bitta qoladi)
         self.assertEqual(Book.objects.filter(title="Mavjud Kitob").count(), 1)
+
+
+class OptimizePdfTests(TestCase):
+    """Sahifa obyektlari object stream'ga yig'iladi — pdf.js butun faylni tortmasin."""
+
+    def _scattered_pdf(self, pages=12) -> bytes:
+        # Har sahifada katta (siqilmaydigan) rasm: sahifa obyektlari rasmlar orasiga sochiladi
+        import io
+        import os
+
+        from PIL import Image
+
+        doc = fitz.open()
+        for i in range(pages):
+            page = doc.new_page()
+            buf = io.BytesIO()
+            Image.frombytes("L", (300, 300), os.urandom(90000)).save(buf, "PNG")
+            page.insert_image(page.rect, stream=buf.getvalue())
+            page.insert_text((72, 72), f"Sahifa {i + 1}")
+        data = doc.tobytes()
+        doc.close()
+        return data
+
+    def test_optimize_keeps_pages_and_packs_objects(self):
+        from apps.ingestion.optimize import optimize_pdf_bytes
+
+        data = self._scattered_pdf()
+        out = optimize_pdf_bytes(data)
+        self.assertIsNotNone(out)
+        self.assertIn(b"/ObjStm", out)
+        doc = fitz.open(stream=out, filetype="pdf")
+        self.assertEqual(doc.page_count, 12)
+        self.assertFalse(doc.is_repaired)
+        # Sahifa obyektlari endi alohida "N 0 obj << /Type /Page" bo'lib sochilmagan
+        self.assertNotIn(b"/Type/Page/", out.replace(b" ", b""))
+        doc.close()
+
+    def test_optimize_rejects_garbage(self):
+        from apps.ingestion.optimize import optimize_pdf_bytes
+
+        self.assertIsNone(optimize_pdf_bytes(b"%PDF-1.4 bu pdf emas"))
+
+    def test_optimize_command_dry_run(self):
+        from io import StringIO
+
+        out = StringIO()
+        call_command("optimize_pdfs", "--dry-run", stdout=out)
+        self.assertIn("Tayyor", out.getvalue())
