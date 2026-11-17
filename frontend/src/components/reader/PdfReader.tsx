@@ -47,6 +47,43 @@ const PDF_OPTIONS = {
 // bir sinf bir vaqtda o'qisa maktab interneti band bo'lmasin).
 const PREFETCH_AHEAD = 10;
 
+type PdfSource = { range: InstanceType<typeof pdfjs.PDFDataRangeTransport> } | { data: Uint8Array };
+
+/**
+ * Faylni faqat Range bo'laklari bilan yuklaydigan manba.
+ *
+ * pdf.js `url` bilan ochganda avval BUTUN faylni so'raydi va sarlavhani ko'rib bekor qiladi.
+ * Lekin server shu orada jo'natib ulgurgan yuzlab KB sekin kanalda baribir yetib kelishi
+ * kerak va keyingi bo'lak so'rovlarini to'sadi (Alkimyogar: 37 s). Bu yerda birinchi so'rov
+ * ham Range — to'liq so'rov umuman bo'lmaydi (Alkimyogar: 6 s).
+ */
+async function openRangeSource(url: string, signal: AbortSignal): Promise<PdfSource> {
+  const chunk = PDF_OPTIONS.rangeChunkSize;
+  const first = await fetch(url, { headers: { Range: `bytes=0-${chunk - 1}` }, signal, credentials: "same-origin" });
+  if (!first.ok) throw new Error(`HTTP ${first.status}`);
+  const head = new Uint8Array(await first.arrayBuffer());
+  const total = Number(first.headers.get("Content-Range")?.split("/")[1]);
+  // Server Range bermasa yoki fayl bitta bo'lakka sig'sa — tayyor baytlar
+  if (first.status !== 206 || !Number.isFinite(total) || total <= head.length) return { data: head };
+
+  const transport = new pdfjs.PDFDataRangeTransport(total, head);
+  transport.requestDataRange = (begin: number, end: number) => {
+    const load = async (attempt: number): Promise<void> => {
+      try {
+        const res = await fetch(url, { headers: { Range: `bytes=${begin}-${end - 1}` }, signal, credentials: "same-origin" });
+        if (res.status !== 206) throw new Error(`HTTP ${res.status}`);
+        transport.onDataRange(begin, new Uint8Array(await res.arrayBuffer()));
+      } catch (err) {
+        if (signal.aborted) return;
+        if (attempt < 2) return load(attempt + 1); // sust internetda bitta uzilish kitobni to'xtatmasin
+        console.warn("PDF bo'lagi yuklanmadi", begin, end, err);
+      }
+    };
+    void load(0);
+  };
+  return { range: transport };
+}
+
 interface PdfReaderProps {
   fileUrl: string;
   initialPage?: number;
@@ -75,6 +112,22 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
   const onPageChangeRef = useRef(onPageChange);
   const pdfRef = useRef<PDFDocumentProxy | null>(null);
   const prefetched = useRef<Set<number>>(new Set());
+  // Manba qaysi fileUrl uchun ochilgani bilan saqlanadi: url o'zgarsa eski manba ko'rsatilmaydi
+  const [opened, setOpened] = useState<{ url: string; source: PdfSource } | null>(null);
+  const source = opened?.url === fileUrl ? opened.source : null;
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    prefetched.current = new Set();
+    openRangeSource(fileUrl, ctrl.signal)
+      .then((s) => {
+        if (!ctrl.signal.aborted) setOpened({ url: fileUrl, source: s });
+      })
+      .catch(() => {
+        if (!ctrl.signal.aborted) setLoadError("Kitob yuklanmadi. Internetni tekshirib, sahifani yangilang.");
+      });
+    return () => ctrl.abort();
+  }, [fileUrl]);
 
   useEffect(() => {
     onPageChangeRef.current = onPageChange;
@@ -259,8 +312,17 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
         onTouchEnd={onTouchEnd}
       >
         <div className="mx-auto flex min-h-full w-fit min-w-full flex-col items-center gap-5 px-3 pt-4 pb-40 has-[.kitob-ochilish]:pt-5 has-[.kitob-ochilish]:pb-28">
+          {!source ? (
+            loadError ? (
+              <div className="flex h-64 max-w-xs items-center justify-center text-center text-sm font-semibold text-olov">
+                {loadError}
+              </div>
+            ) : (
+              <ReaderLoading />
+            )
+          ) : (
           <Document
-            file={fileUrl}
+            file={source}
             options={PDF_OPTIONS}
             onLoadSuccess={handleLoadSuccess}
             onLoadError={handleLoadError}
@@ -318,6 +380,7 @@ export default function PdfReader({ fileUrl, initialPage = 1, onPageChange, onDo
                 ))
               : null}
           </Document>
+          )}
 
           {isLastPage && pageMode === "page" && <FinishCard onBack={() => router.push("/books")} />}
         </div>
