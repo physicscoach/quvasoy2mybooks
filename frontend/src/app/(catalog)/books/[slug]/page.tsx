@@ -12,6 +12,7 @@ import { formatNumberUz } from "@/lib/utils";
 import { ReviewForm } from "@/components/catalog/ReviewForm";
 import { DownloadButton } from "@/components/catalog/DownloadButton";
 import type { ReadingProgress } from "@/types/reader";
+import { ReaderWarmup } from "@/components/reader/ReaderWarmup";
 
 const DIFFICULTY_LABELS: Record<string, string> = {
   easy: "Oson",
@@ -121,6 +122,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
+      {readHref && <ReaderWarmup />}
       <Link
         href="/books"
         className="mb-6 inline-flex items-center gap-1 rounded-lg text-sm font-semibold text-muted-foreground hover:text-foreground"
