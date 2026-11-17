@@ -31,7 +31,8 @@ def optimize_pdf_bytes(data: bytes) -> bytes | None:
     except Exception:  # noqa: BLE001
         return None
     try:
-        if src.is_encrypted or src.page_count == 0:
+        # Buzuq (MuPDF "ta'mirlagan") faylni qayta yozmaymiz: tiklanmagan obyektlar yo'qolishi mumkin
+        if src.is_encrypted or src.is_repaired or src.page_count == 0:
             return None
         pages = src.page_count
         # no_new_id: natija barqaror bo'lsin — bir xil fayl qayta yuklansa checksum bir xil (dublikat aniqlanadi)
